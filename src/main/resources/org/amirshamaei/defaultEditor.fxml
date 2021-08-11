@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="156.0" prefWidth="463.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.amirshamaei.DefaultEditorCtlr">
+   <children>
+      <VBox alignment="CENTER" layoutY="-9.0" prefHeight="258.0" prefWidth="524.0">
+         <children>
+            <Label alignment="CENTER" contentDisplay="CENTER" text="Please Select the Path to Your Text File Viewer">
+               <font>
+                  <Font name="Gill Sans MT" size="20.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="10.0" top="10.0" />
+               </VBox.margin>
+            </Label>
+            <HBox alignment="CENTER">
+               <children>
+                  <TextField fx:id="pathViewer" prefHeight="26.0" prefWidth="397.0">
+                     <HBox.margin>
+                        <Insets bottom="10.0" top="10.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Button fx:id="selector" mnemonicParsing="false" text="Select" />
+               </children>
+            </HBox>
+            <CheckBox fx:id="dontshow" mnemonicParsing="false" text="Don't Show this dialog again">
+               <VBox.margin>
+                  <Insets bottom="10.0" top="10.0" />
+               </VBox.margin>
+            </CheckBox>
+            <Button fx:id="open" mnemonicParsing="false" text="Open" />
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </VBox>
+   </children>
+</AnchorPane>

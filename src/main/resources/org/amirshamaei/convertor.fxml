@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="400.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.amirshamaei.ConvertorCtrlr">
+   <children>
+      <VBox AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+         <children>
+            <Label text="Please Chose The Type of Data" />
+            <HBox alignment="CENTER_LEFT">
+               <children>
+                  <ChoiceBox fx:id="dataType" />
+                  <Label fx:id="format" alignment="CENTER" contentDisplay="CENTER" text="Format:" textFill="#0d0772">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
+            <Label text="Please Type the NIfTI file name" />
+
+                  <TextField fx:id="niftiName" prefHeight="0.0" prefWidth="396.0">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </TextField>
+            <HBox alignment="CENTER_LEFT" spacing="20.0">
+               <children>
+                  <RadioButton fx:id="compression" mnemonicParsing="false" text="Compression( .gz )">
+                     <font>
+                        <Font name="System Italic" size="12.0" />
+                     </font></RadioButton>
+                  <Button fx:id="convertButton" mnemonicParsing="false" text="Convert" />
+                  <ProgressIndicator fx:id="progressBar" disable="true" prefHeight="9.0" prefWidth="30.0" visible="false" />
+               </children>
+               <padding>
+                  <Insets right="50.0" />
+               </padding>
+               <VBox.margin>
+                  <Insets bottom="10.0" top="10.0" />
+               </VBox.margin>
+            </HBox>
+            <TextArea fx:id="logger" prefHeight="200.0" prefWidth="200.0">
+               <VBox.margin>
+                  <Insets top="5.0" />
+               </VBox.margin>
+            </TextArea>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

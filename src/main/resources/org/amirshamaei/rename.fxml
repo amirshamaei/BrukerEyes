@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="400.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.amirshamaei.RenameCtrlr">
+   <children>
+      <VBox AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+         <children>
+            <Label text="Please Chose a Dataset" />
+            <ChoiceBox fx:id="datasets" />
+            <Label text="Please Type the parameter name" />
+
+                  <TextField fx:id="parameter" prefHeight="0.0" prefWidth="396.0">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </TextField>
+            <HBox>
+               <children>
+                  <Button fx:id="add" mnemonicParsing="false" text="Add" />
+                  <Button fx:id="remove" mnemonicParsing="false" text="Remove">
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" top="5.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox fx:id="parameters" maxHeight="25.0" minHeight="25.0" prefHeight="25.0" prefWidth="396.0">
+               <VBox.margin>
+                  <Insets bottom="5.0" top="5.0" />
+               </VBox.margin>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" spacing="20.0">
+               <children>
+                  <Button fx:id="renameButton" mnemonicParsing="false" text="Rename" />
+                  <CheckBox fx:id="copy" alignment="CENTER" mnemonicParsing="false" text="Make a copy" />
+                  <ProgressIndicator fx:id="progressbar" prefHeight="20.0" prefWidth="20.0" visible="false" />
+               </children>
+               <padding>
+                  <Insets right="50.0" />
+               </padding>
+            </HBox>
+            <TextArea fx:id="logger" prefHeight="200.0" prefWidth="200.0">
+               <VBox.margin>
+                  <Insets top="5.0" />
+               </VBox.margin>
+            </TextArea>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>
