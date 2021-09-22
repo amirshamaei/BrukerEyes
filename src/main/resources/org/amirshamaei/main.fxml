@@ -45,34 +45,34 @@
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
-            <MenuItem fx:id="newdataset" mnemonicParsing="false" text="New Dataset" />
-            <MenuItem fx:id="adddataset" mnemonicParsing="false" text="Add Dataset" />
-            <Menu mnemonicParsing="false" text="Open Recent" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Close" />
-            <MenuItem mnemonicParsing="false" text="Save" />
-            <MenuItem mnemonicParsing="false" text="Save As…" />
-            <MenuItem mnemonicParsing="false" text="Revert" />
+<!--            <MenuItem fx:id="newdataset" mnemonicParsing="false" text="New Dataset" />-->
+<!--            <MenuItem fx:id="adddataset" mnemonicParsing="false" text="Add Dataset" />-->
+<!--            <Menu mnemonicParsing="false" text="Open Recent" />-->
+<!--            <SeparatorMenuItem mnemonicParsing="false" />-->
+<!--            <MenuItem mnemonicParsing="false" text="Close" />-->
+<!--            <MenuItem mnemonicParsing="false" text="Save" />-->
+<!--            <MenuItem mnemonicParsing="false" text="Save As…" />-->
+<!--            <MenuItem mnemonicParsing="false" text="Revert" />-->
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" text="Preferences…" />
             <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Quit" />
+            <MenuItem mnemonicParsing="false" text="Quit" onAction="#quit"/>
           </items>
         </Menu>
         <Menu mnemonicParsing="false" text="Edit">
           <items>
-            <MenuItem mnemonicParsing="false" text="Undo" />
-            <MenuItem mnemonicParsing="false" text="Redo" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Cut" />
-            <MenuItem mnemonicParsing="false" text="Copy" />
-            <MenuItem mnemonicParsing="false" text="Paste" />
-            <MenuItem mnemonicParsing="false" text="Delete" />
+<!--            <MenuItem mnemonicParsing="false" text="Undo" />-->
+<!--            <MenuItem mnemonicParsing="false" text="Redo" />-->
+<!--            <SeparatorMenuItem mnemonicParsing="false" />-->
+<!--            <MenuItem mnemonicParsing="false" text="Cut" />-->
+<!--            <MenuItem mnemonicParsing="false" text="Copy" />-->
+<!--            <MenuItem mnemonicParsing="false" text="Paste" />-->
+<!--            <MenuItem mnemonicParsing="false" text="Delete" />-->
             <SeparatorMenuItem mnemonicParsing="false" />
             <MenuItem mnemonicParsing="false" text="Select All" />
             <MenuItem mnemonicParsing="false" text="Unselect All" />
                   <MenuItem fx:id="renameFiles" mnemonicParsing="false" text="Rename Files" />
-                  <MenuItem fx:id="chngtxtviwr" mnemonicParsing="false" text="Change Defualt Text Viewer" />
+                  <MenuItem fx:id="chngtxtviwr" mnemonicParsing="false" text="Change Defualt Text Viewer" onAction="#Chngtxtviwr"/>
           </items>
         </Menu>
         <Menu mnemonicParsing="false" text="Help">

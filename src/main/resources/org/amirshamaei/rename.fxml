@@ -8,8 +8,6 @@
    <children>
       <VBox AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
          <children>
-            <Label text="Please Chose a Dataset" />
-            <ChoiceBox fx:id="datasets" />
             <Label text="Please Type the parameter name" />
 
                   <TextField fx:id="parameter" prefHeight="0.0" prefWidth="396.0">

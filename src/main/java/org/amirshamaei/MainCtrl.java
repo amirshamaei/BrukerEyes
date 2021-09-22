@@ -12,6 +12,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -26,6 +27,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -123,6 +125,7 @@ public class MainCtrl implements Initializable {
                 listRoot = File.listRoots();
             }
         });
+
         userDisplay.setText("Hi " + CurrentUser.getUser().username);
         try {
             if (CurrentUser.getUser().getCD() == null) {
@@ -164,18 +167,31 @@ public class MainCtrl implements Initializable {
         });
         renameA.setOnAction(this::RenameFiles);
         rename.setOnAction(actionEvent -> {
-            cd_temp = new File(CurrentUser.getUser().getCD().getAbsoluteFile(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
-            ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().setText("");
+            ListContainer selectedItem = (ListContainer) listView.getSelectionModel().getSelectedItem();
+            cd_temp = new File(CurrentUser.getUser().getCD().getAbsoluteFile(), selectedItem.getLabel().getText());
+            String old_name = (selectedItem).getLabel().getText();
+            (selectedItem).getLabel().setText("");
             TextField temp_tf = new TextField("");
-            ((ListContainer) listView.getSelectionModel().getSelectedItem()).getChildren().add(temp_tf);
+            (selectedItem).getChildren().add(temp_tf);
             temp_tf.requestFocus();
             temp_tf.setOnKeyReleased(e -> {
-                if(e.getCode() == KeyCode.ENTER){
-                    ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().setText(temp_tf.getText());
-                    cd_temp.renameTo(new File(CurrentUser.getUser().getCD().getAbsoluteFile(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText()));
-                    ((ListContainer) listView.getSelectionModel().getSelectedItem()).getChildren().remove(temp_tf);
+                if(e.getCode() == KeyCode.ENTER && !temp_tf.getText().isEmpty()){
+                    (selectedItem).getLabel().setText(temp_tf.getText());
+                    cd_temp.renameTo(new File(CurrentUser.getUser().getCD().getAbsoluteFile(), (selectedItem).getLabel().getText()));
+                    (selectedItem).getChildren().remove(temp_tf);
+                } else if (e.getCode() == KeyCode.ENTER && temp_tf.getText().isEmpty()){
+                    (selectedItem).getChildren().remove(temp_tf);
+                    (selectedItem).getLabel().setText(old_name);
                 }
             });
+//            listView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+//                @Override
+//                public void handle(MouseEvent mouseEvent) {
+//                    (selectedItem).getChildren().remove(temp_tf);
+//                    (selectedItem).getLabel().setText(old_name);
+//                }
+//            });
+
 //            cd_temp.renameTo(new File)
         });
         copy.setOnAction(actionEvent -> {
@@ -299,6 +315,11 @@ public class MainCtrl implements Initializable {
             } catch (Exception e) {
 
             }
+            try {
+                CurrentUser.getInstance().saveUser();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             bookmarkstage.close();
         });
         bookmarkCtrlr.cacellikedpath.setOnAction(actionEvent1 -> {
@@ -366,6 +387,11 @@ public class MainCtrl implements Initializable {
             like.setSelected(true);
         } else {
             like.setSelected(false);
+        }
+        try {
+            CurrentUser.getInstance().saveUser();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -445,6 +471,7 @@ public class MainCtrl implements Initializable {
         }
     }
 
+    @FXML
     private void Chngtxtviwr(ActionEvent actionEvent) {
         FXMLLoader deDialog = new FXMLLoader(App.class.getResource("DefaultEditor" + ".fxml"));
         Parent parent = null;
@@ -482,10 +509,8 @@ public class MainCtrl implements Initializable {
     }
 
     private void RenameFiles(ActionEvent actionEvent) {
-        System.out.println("test");
         ObservableList selectedItems = null;
         selectedItems = listView.getSelectionModel().getSelectedItems();
-
         FXMLLoader renameDialog = new FXMLLoader(App.class.getResource("rename" + ".fxml"));
         Parent parent = null;
         try {
@@ -495,17 +520,9 @@ public class MainCtrl implements Initializable {
         }
         Scene scene = new Scene(parent, 416, 400);
         Stage stage = new Stage();
-//        stage.initModality(Modality.APPLICATION_MODAL);
         stage.setScene(scene);
-//        stage.showAndWait();
         stage.show();
-
-
-//            ObservableList observableList = FXCollections.observableArrayList(selected);
         RenameCtrlr renamctrlr = (RenameCtrlr) renameDialog.getController();
-//            renamctrlr.datasets.setItems(observableList);
-//            renamctrlr.datasets.getSelectionModel().selectFirst();
-
         getParametersforPrediction(renamctrlr.parameter);
         ArrayList<String> strings = new ArrayList<>();
         renamctrlr.add.setOnAction(actionEvent1 -> {
@@ -522,8 +539,6 @@ public class MainCtrl implements Initializable {
                 strings.remove(strings.size() - 1);
             }
         });
-//        renamctrlr.parameters.setItems(FXCollections.observableArrayList(CurrentUser.getUser().selectedParameters));
-//        renamctrlr.parameters.getSelectionModel().selectFirst();
         StringProperty loggerText = new SimpleStringProperty("logger:");
         renamctrlr.logger.textProperty().bind(loggerText);
         ObservableList finalSelectedItems = selectedItems;
@@ -589,7 +604,10 @@ public class MainCtrl implements Initializable {
 
 
 
-                            }
+                             else {
+                        loggerText.set(loggerText.get() + "\n" + "Apparently the selected directory is not valid Bruker directory");
+                    }
+                    }
                     updateFolderViewer();
                     renamctrlr.progressbar.setVisible(false);
                         }
@@ -918,5 +936,9 @@ public class MainCtrl implements Initializable {
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
+    }
+
+    public void quit() {
+        System.exit(0);
     }
 }

@@ -6,9 +6,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="617.0" prefWidth="616.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.amirshamaei.login">
+<AnchorPane prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.amirshamaei.login">
    <children>
-      <ImageView fitHeight="617.0" fitWidth="1000.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="600.0" fitWidth="600.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@login.png" />
          </image></ImageView>
@@ -23,7 +23,7 @@
                   <String fx:value="list-cell" />
                   <String fx:value="list-view" />
                </styleClass></ComboBox>
-            <TextField fx:id="username" layoutX="68.0" layoutY="75.0" prefHeight="25.0" prefWidth="171.0" promptText="or type a username to sign uo" styleClass="text-field" stylesheets="@style.css">
+            <TextField fx:id="username" layoutX="68.0" layoutY="75.0" prefHeight="25.0" prefWidth="171.0" promptText="or type a username to sign uo" style="-fx-background-color: rgba(255, 0, 0, 0.3);" styleClass="text-field" stylesheets="@style.css">
                <font>
                   <Font name="System Italic" size="12.0" />
                </font></TextField>
