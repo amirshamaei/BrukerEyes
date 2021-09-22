@@ -5,6 +5,8 @@ module org.amirshamaei {
     requires JBruker;
     requires bruker2nii;
     requires java.sql;
-    opens org.amirshamaei to javafx.fxml;
+    requires java.base;
+    opens org.amirshamaei to javafx.fxml, JBruker, java.base;
+
     exports org.amirshamaei;
 }

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="350.0" prefWidth="700.0" styleClass="menu-bar" stylesheets="@style.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.amirshamaei.BookmarkCtrlr">
+   <children>
+      <VBox maxHeight="400.0" spacing="10.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="20.0">
+         <children>
+            <ListView id="listViwelike" fx:id="likedlist" prefHeight="192.0" prefWidth="200.0" styleClass="list-cell" stylesheets="@style.css">
+               <padding>
+                  <Insets bottom="10.0" />
+               </padding>
+            </ListView>
+            <HBox fx:id="hboxlikedpath" fillHeight="false">
+               <children>
+                  <VBox alignment="BOTTOM_LEFT" prefHeight="100.0" prefWidth="568.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <TextField fx:id="namelikedpath" promptText="Name">
+                           <font>
+                              <Font name="System Italic" size="13.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <TextField fx:id="deslikedpath" alignment="TOP_LEFT" prefHeight="86.0" promptText="Description">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </TextField>
+                     </children>
+                  </VBox>
+                  <VBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="63.0" HBox.hgrow="ALWAYS" VBox.vgrow="NEVER">
+                     <children>
+                        <Button fx:id="savelikedpath" mnemonicParsing="false" prefHeight="26.0" prefWidth="62.0" text="Save" VBox.vgrow="ALWAYS">
+                           <VBox.margin>
+                              <Insets bottom="5.0" />
+                           </VBox.margin></Button>
+                        <Button fx:id="cacellikedpath" mnemonicParsing="false" prefHeight="26.0" prefWidth="62.0" text="Cancel" />
+                     </children>
+                     <HBox.margin>
+                        <Insets left="5.0" />
+                     </HBox.margin>
+                  </VBox>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

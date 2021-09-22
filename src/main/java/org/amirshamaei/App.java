@@ -4,9 +4,11 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -22,7 +24,12 @@ public class App extends Application {
         scene = new Scene(loadFXML("login"), 600, 600);
 //        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         stage.initStyle(StageStyle.UNDECORATED);
+//        CurrentUser.setUser(new User("amir"));
+//        scene = new Scene(loadFXML("main"));
         stage.setScene(scene);
+        File f = new File("src\\main\\resources\\org\\amirshamaei\\icons\\icon.png");
+        Image icon = new Image(f.toURI().toString());
+        stage.getIcons().add(icon);
         stage.show();
     }
 

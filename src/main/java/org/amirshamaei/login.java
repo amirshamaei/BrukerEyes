@@ -1,5 +1,6 @@
 package org.amirshamaei;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,8 +9,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -26,7 +29,8 @@ public class login implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 //        UsersData.getInstance().addUser(new User("guset"));
-        users.setItems(UsersData.getInstance().getUsers());
+        Users.getInstance().loadUsers();
+        users.setItems(FXCollections.observableArrayList(Users.getInstance().getUsersList()));
         username.setOnKeyTyped(actionEvent -> {
             if (username.getText().isEmpty()) {
                 users.setDisable(false);
@@ -40,21 +44,7 @@ public class login implements Initializable {
     public void close() {
         System.exit(0);
     }
-    @FXML
-    public void reglogin() throws IOException {
-        User newUser;
-        if (!username.getText().isEmpty()) {
-            UsersData.getInstance().addUser(new User(username.getText()));
-            UsersData.getInstance().storeUsers();
-            App.stage.hide();
-            Scene scene = new Scene(loadFXML("main"), 1000, 600);
-            Stage stage = new Stage();
-            stage.setScene(scene);
-            stage.show();
-        } else {
-        }
 
-    }
 
     private Parent loadFXML(String fxml) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
@@ -63,12 +53,30 @@ public class login implements Initializable {
 
     @FXML
     public void login() throws IOException, InterruptedException {
-        User selectedUser = UsersData.getInstance().getUsers().get(users.getSelectionModel().getSelectedIndex());
-        CurrentUser.setUser(selectedUser);
+        if (!users.isDisable()) {
+            String selectedUser = (String) Users.getInstance().getUsersList().get(users.getSelectionModel().getSelectedIndex());
+            CurrentUser.getInstance().loadUser(selectedUser);
+        } else {
+            Users.getInstance().getUsersList().add(username.getText());
+            Users.getInstance().saveUsers();
+            String selectedUser = username.getText();
+            CurrentUser.setUser(new User(selectedUser));
+        }
         App.stage.hide();
         Scene scene = new Scene(loadFXML("main"), 1000, 600);
         Stage stage = new Stage();
         stage.setScene(scene);
+        stage.setMaximized(true);
+        stage.setOnCloseRequest(windowEvent -> {
+            try {
+                CurrentUser.getInstance().saveUser();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        File f = new File("src\\main\\resources\\org\\amirshamaei\\icons\\icon.png");
+        Image icon = new Image(f.toURI().toString());
+        stage.getIcons().add(icon);
         stage.show();
     }
 

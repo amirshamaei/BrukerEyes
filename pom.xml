@@ -35,7 +35,17 @@
             <artifactId>controlsfx</artifactId>
             <version>11.1.0</version>
         </dependency>
-<!--        mvn install:install-file -Dfile=D:\my-project\bruker2nii_java\out\artifacts\bruker2nii_jar\bruker2nii.jar -DgroupId=com.bruker2nii -DartifactId=bruker2nii - -->
+        <dependency>
+            <groupId>com.jfoenix</groupId>
+            <artifactId>jfoenix</artifactId>
+            <version>8.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.6</version>
+        </dependency>
+        <!--        mvn install:install-file -Dfile=D:\my-project\bruker2nii_java\out\artifacts\bruker2nii_jar\bruker2nii.jar -DgroupId=com.bruker2nii -DartifactId=bruker2nii - -->
 <!--        Dversion=1.0 -Dpackaging=jar-->
 
     </dependencies>
