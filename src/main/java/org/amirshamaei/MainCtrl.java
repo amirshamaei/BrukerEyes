@@ -50,8 +50,7 @@ import java.util.stream.Collectors;
 
 
 public class MainCtrl implements Initializable {
-//    @FXML
-//    MenuItem aboutUs;
+
     @FXML
     MenuItem newdataset;
     @FXML
@@ -473,7 +472,7 @@ public class MainCtrl implements Initializable {
 
     @FXML
     private void Chngtxtviwr(ActionEvent actionEvent) {
-        FXMLLoader deDialog = new FXMLLoader(App.class.getResource("DefaultEditor" + ".fxml"));
+        FXMLLoader deDialog = new FXMLLoader(App.class.getResource("defaultEditor" + ".fxml"));
         Parent parent = null;
         try {
             parent = deDialog.load();

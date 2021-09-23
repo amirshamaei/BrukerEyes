@@ -53,9 +53,9 @@
 <!--            <MenuItem mnemonicParsing="false" text="Save" />-->
 <!--            <MenuItem mnemonicParsing="false" text="Save As…" />-->
 <!--            <MenuItem mnemonicParsing="false" text="Revert" />-->
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Preferences…" />
-            <SeparatorMenuItem mnemonicParsing="false" />
+<!--            <SeparatorMenuItem mnemonicParsing="false" />-->
+<!--            <MenuItem mnemonicParsing="false" text="Preferences…" />-->
+<!--            <SeparatorMenuItem mnemonicParsing="false" />-->
             <MenuItem mnemonicParsing="false" text="Quit" onAction="#quit"/>
           </items>
         </Menu>
@@ -68,10 +68,10 @@
 <!--            <MenuItem mnemonicParsing="false" text="Copy" />-->
 <!--            <MenuItem mnemonicParsing="false" text="Paste" />-->
 <!--            <MenuItem mnemonicParsing="false" text="Delete" />-->
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Select All" />
-            <MenuItem mnemonicParsing="false" text="Unselect All" />
-                  <MenuItem fx:id="renameFiles" mnemonicParsing="false" text="Rename Files" />
+<!--            <SeparatorMenuItem mnemonicParsing="false" />-->
+<!--            <MenuItem mnemonicParsing="false" text="Select All" />-->
+<!--            <MenuItem mnemonicParsing="false" text="Unselect All" />-->
+<!--                  <MenuItem fx:id="renameFiles" mnemonicParsing="false" text="Rename Files" />-->
                   <MenuItem fx:id="chngtxtviwr" mnemonicParsing="false" text="Change Defualt Text Viewer" onAction="#Chngtxtviwr"/>
           </items>
         </Menu>

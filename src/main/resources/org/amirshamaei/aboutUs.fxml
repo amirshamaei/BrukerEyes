@@ -22,7 +22,7 @@
          </font>
       </TextArea>
       <Label layoutX="131.0" layoutY="506.0" prefHeight="80.0" prefWidth="425.0" text="This project has received funding from the European Union's Horizon 2020 research and innovation program under the Marie Sklodowska-Curie grant agreement No 813120" textAlignment="JUSTIFY" textFill="#f5f5f5" wrapText="true" />
-      <Label layoutX="56.0" layoutY="259.0" prefHeight="114.0" prefWidth="497.0" text="BrukerEyes is a cross-platform open source app for Bruker Datasets managment for academical use. You can find the new version on our github.  We also would be happy to hear your feedback. In case you face any problem or bug, send us a message via email." textAlignment="JUSTIFY" textFill="WHITE" wrapText="true">
+      <Label layoutX="56.0" layoutY="259.0" prefHeight="114.0" prefWidth="497.0" text="BrukerEyes is a cross-platform open-source package for Bruker Datasets management. You can find the new version on our GitHub.  We also would be happy to hear your feedback. In case you face any problem or bug, send us a message via email." textAlignment="JUSTIFY" textFill="WHITE" wrapText="true">
          <font>
             <Font size="15.0" />
          </font>
