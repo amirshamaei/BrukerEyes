@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -52,7 +53,7 @@ public class login implements Initializable {
     }
 
     @FXML
-    public void login() throws IOException, InterruptedException {
+    public void login() throws IOException, InterruptedException, URISyntaxException {
         if (!users.isDisable()) {
             String selectedUser = (String) Users.getInstance().getUsersList().get(users.getSelectionModel().getSelectedIndex());
             CurrentUser.getInstance().loadUser(selectedUser);
@@ -74,8 +75,7 @@ public class login implements Initializable {
                 e.printStackTrace();
             }
         });
-        File f = new File("src\\main\\resources\\org\\amirshamaei\\icons\\icon.png");
-        Image icon = new Image(f.toURI().toString());
+        Image icon = new Image(getClass().getResource("icons/icon.png").toURI().toString());
         stage.getIcons().add(icon);
         stage.show();
     }

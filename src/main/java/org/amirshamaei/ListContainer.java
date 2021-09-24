@@ -62,7 +62,7 @@ public class ListContainer extends HBox {
                 }
                 case "visu_pars": {
                     try {
-                        image = new Image(getClass().getResource("icons/visu_pars.png").toURI().toString());
+                        image = new Image(getClass().getResource("icons/visupars.png").toURI().toString());
                     } catch (URISyntaxException e) {
                         e.printStackTrace();
                     }
