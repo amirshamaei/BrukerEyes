@@ -1,5 +1,7 @@
 # Bruker Eyes
-BrukerEyes is a cross-platform open-source package for Bruker Datasets management. You can find the new version on our GitHub.  We also would be happy to hear your feedback. In case you face any problem or bug, send us a message via email.
+BrukerEyes is a cross-platform open-source package for Bruker Datasets management. 
+You can find the new compiled version on [SourceForge](https://sourceforge.net/projects/brukereyes/) or you can clone this repo and build your own.
+We also would be happy to hear your feedback. In case you face any problem or bug, send us a message via email.
 ## DEMO
 [![Watch the video](https://img.youtube.com/vi/DqdsX3KPpIg/0.jpg)](https://youtu.be/DqdsX3KPpIg)
 
