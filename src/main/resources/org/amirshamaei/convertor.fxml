@@ -29,6 +29,7 @@
             </TextField>
             <HBox alignment="CENTER_LEFT" spacing="20.0">
                <children>
+                  <ChoiceBox fx:id="niftiversion" />
                   <RadioButton fx:id="compression" mnemonicParsing="false" text="Compression( .gz )">
                      <font>
                         <Font name="System Italic" size="12.0" />

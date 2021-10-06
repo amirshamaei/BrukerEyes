@@ -1,6 +1,7 @@
 package org.amirshamaei;
 
 import bruker2nii.Bruker2nii;
+import bruker2nii.Bruker2nii1;
 import bruker2nii.DataType;
 import bruker_plugin_lib.Jcampdx;
 import bruker_plugin_lib.JcampdxData;
@@ -95,6 +96,7 @@ public class MainCtrl implements Initializable {
     AnchorPane likedpathpane;
 
 
+
     MenuItem convert2nii = new MenuItem("Convert to NIfTI");
     MenuItem delete = new MenuItem("Delete");
     MenuItem renameA = new MenuItem("Rename Automatically");
@@ -107,7 +109,7 @@ public class MainCtrl implements Initializable {
     ObservableList<Map<String, Object>> items =
             FXCollections.<Map<String, Object>>observableArrayList();
     private ContextMenu contxtMenu;
-    private File cd_copy;
+    private LinkedList cd_copy = new LinkedList();
     private File[] listRoot;
     private File cd_temp;
     private JcampdxData studyList;
@@ -194,31 +196,62 @@ public class MainCtrl implements Initializable {
 //            cd_temp.renameTo(new File)
         });
         copy.setOnAction(actionEvent -> {
-            cd_copy = new File(CurrentUser.getUser().getCD().getAbsoluteFile(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
+            listView.getSelectionModel().getSelectedItems().forEach( e->
+                cd_copy.add(new File(CurrentUser.getUser().getCD().getAbsoluteFile(), ((ListContainer) e).getLabel().getText()))
+            );
         });
         paste.setOnAction(actionEvent -> {
             Platform.runLater( new Runnable() {
                 public void run() {
-                    if (cd_copy.isDirectory()) {
-                        try {
-                            FileUtils.copyDirectoryToDirectory(cd_copy,CurrentUser.getUser().getCD());
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                    cd_copy.forEach(file -> {
+                        if (((File) file).isDirectory()) {
+                            try {
+                                FileUtils.copyDirectoryToDirectory((File)file,CurrentUser.getUser().getCD());
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                    if (cd_copy.isFile()) {
-                        try {
-                            FileUtils.copyFileToDirectory(cd_copy,CurrentUser.getUser().getCD());
-                        } catch (IOException ioException) {
-                            ioException.printStackTrace();
+                        if (((File) file).isFile()) {
+                            try {
+                                FileUtils.copyFileToDirectory((File)file,CurrentUser.getUser().getCD());
+                            } catch (IOException ioException) {
+                                ioException.printStackTrace();
+                            }
                         }
-                    }
-                    updateFolderViewer();
-                }
+                        updateFolderViewer();
+                    });
+                }});
             });
+
+
+
+
+        listView.setOnKeyReleased(keyBoardEvent -> {
+            if (((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.brukerDirectory)) {
+                cd_temp = new File(CurrentUser.getUser().getCD().getAbsoluteFile(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
+                setParamsTable(cd_temp);
+            }
+            if (keyBoardEvent.getCode()==KeyCode.ENTER){
+                if (((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.directory)
+                        || ((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.brukerDirectory)) {
+                    String temp = null;
+                    try {
+                        temp = CurrentUser.getUser().getCD().getPath();
+                    } catch (Exception e) {
+                    }
+                    CurrentUser.getUser().setCd(new File(temp, ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText()));
+                    updateFolderViewer();
+                    updatePathField();
+                } else if (((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.text)) {
+                    try {
+//                        CurrentUser.getUser().setCd(new File(CurrentUser.getUser().getCD().getAbsoluteFile(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText()));
+                        openfile(((ListContainer) listView.getSelectionModel().getSelectedItem()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         });
-
-
 
 
         listView.setOnMouseClicked(mouseEvent -> {
@@ -418,6 +451,14 @@ public class MainCtrl implements Initializable {
             types.add(DataType.IMAGE);
             cntrl.dataType.setItems(types);
             cntrl.dataType.getSelectionModel().select(2);
+
+            ObservableList niftiversions = FXCollections.observableArrayList();
+
+            niftiversions.add("NifTi 1");
+            niftiversions.add("NifTi 2");
+            cntrl.niftiversion.setItems(niftiversions);
+            cntrl.niftiversion.getSelectionModel().select(1);
+
             String path = selected.getFile().getPath();
             StringProperty loggerText = new SimpleStringProperty("logger:");
             cntrl.logger.textProperty().bind(loggerText);
@@ -441,31 +482,54 @@ public class MainCtrl implements Initializable {
                     }
 
                     Path path2nii = Paths.get(path).getParent().resolve(niftiName);
-                    Bruker2nii bruker2nii = new Bruker2nii(path);
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            boolean rslt = false;
-                            try {
-                                rslt = bruker2nii.convert(path2nii.toString(), (DataType) (cntrl.dataType.getSelectionModel().getSelectedItem()));
-                            } catch (Exception exception) {
-                                exception.printStackTrace();
-                                loggerText.set(loggerText.get()+"\n"+ "Unuccessful Conversion :( ");
+                    if (cntrl.niftiversion.getSelectionModel().getSelectedIndex() == 0) {
+                        Bruker2nii1 bruker2nii = new Bruker2nii1(path);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                boolean rslt = false;
+                                try {
+                                    rslt = bruker2nii.convert(path2nii.toString(), (DataType) (cntrl.dataType.getSelectionModel().getSelectedItem()));
+                                    updateFolderViewer();
+                                } catch (Exception exception) {
+                                    exception.printStackTrace();
+                                    loggerText.set(loggerText.get() + "\n" + "Unuccessful Conversion :( ");
+                                }
+                                if (rslt) {
+                                    loggerText.set(loggerText.get() + "\n" + "Successful Conversion: " + path2nii);
+                                    cntrl.progressBar.setVisible(false);
+                                } else {
+                                    loggerText.set(loggerText.get() + "\n" + "Unuccessful Conversion :( ");
+                                    cntrl.progressBar.setVisible(false);
+                                }
                             }
-                            if (rslt) {
-                                loggerText.set(loggerText.get()+"\n"+ "Successful Conversion: " + path2nii);
-                                cntrl.progressBar.setVisible(false);
-                            } else {
-                                loggerText.set(loggerText.get()+"\n"+ "Unuccessful Conversion :( ");
-                                cntrl.progressBar.setVisible(false);
-                            }
+                        }).start();
+                    } else {
+                            Bruker2nii bruker2nii = new Bruker2nii(path);
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    boolean rslt = false;
+                                    try {
+                                        rslt = bruker2nii.convert(path2nii.toString(), (DataType) (cntrl.dataType.getSelectionModel().getSelectedItem()));
+                                        updateFolderViewer();
+                                    } catch (Exception exception) {
+                                        exception.printStackTrace();
+                                        loggerText.set(loggerText.get()+"\n"+ "Unuccessful Conversion :( ");
+                                    }
+                                    if (rslt) {
+                                        loggerText.set(loggerText.get()+"\n"+ "Successful Conversion: " + path2nii);
+                                        cntrl.progressBar.setVisible(false);
+                                    } else {
+                                        loggerText.set(loggerText.get()+"\n"+ "Unuccessful Conversion :( ");
+                                        cntrl.progressBar.setVisible(false);
+                                    }
+                                }
+                            }).start();
                         }
-                    }).start();
-
-
                 } else {
                 }
-                updateFolderViewer();
+
             });
         }
     }

@@ -24,6 +24,8 @@ public class ConvertorCtrlr implements Initializable {
     RadioButton compression;
     @FXML
     ProgressIndicator progressBar;
+    @FXML
+    ChoiceBox niftiversion;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
