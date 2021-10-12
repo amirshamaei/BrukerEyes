@@ -3,8 +3,11 @@ package org.amirshamaei;
 import bruker2nii.Bruker2nii;
 import bruker2nii.Bruker2nii1;
 import bruker2nii.DataType;
+import bruker_plugin_lib.Bruker;
+import bruker_plugin_lib.DataBruker;
 import bruker_plugin_lib.Jcampdx;
 import bruker_plugin_lib.JcampdxData;
+import com.sun.activation.viewers.ImageViewer;
 import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -17,16 +20,19 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.ZoomEvent;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
@@ -42,6 +48,7 @@ import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -51,7 +58,8 @@ import java.util.stream.Collectors;
 
 
 public class MainCtrl implements Initializable {
-
+    @FXML
+    AnchorPane imageview;
     @FXML
     MenuItem newdataset;
     @FXML
@@ -94,7 +102,7 @@ public class MainCtrl implements Initializable {
     ToggleButton like;
     @FXML
     AnchorPane likedpathpane;
-
+    FxImageCanvas canvas = new FxImageCanvas();
 
 
     MenuItem convert2nii = new MenuItem("Convert to NIfTI");
@@ -139,9 +147,9 @@ public class MainCtrl implements Initializable {
         updateFolderViewer();
         backward.setOnAction(this::backwardPath);
         pathField.setOnKeyReleased(e -> {
-            if (e.getCode() == KeyCode.ENTER){
+            if (e.getCode() == KeyCode.ENTER) {
                 try {
-                    CurrentUser.getUser().setCd( new File(pathField.getText()));
+                    CurrentUser.getUser().setCd(new File(pathField.getText()));
                     updatePathField();
                     updateFolderViewer();
                 } catch (Exception exception) {
@@ -176,11 +184,11 @@ public class MainCtrl implements Initializable {
             (selectedItem).getChildren().add(temp_tf);
             temp_tf.requestFocus();
             temp_tf.setOnKeyReleased(e -> {
-                if(e.getCode() == KeyCode.ENTER && !temp_tf.getText().isEmpty()){
+                if (e.getCode() == KeyCode.ENTER && !temp_tf.getText().isEmpty()) {
                     (selectedItem).getLabel().setText(temp_tf.getText());
                     cd_temp.renameTo(new File(CurrentUser.getUser().getCD().getAbsoluteFile(), (selectedItem).getLabel().getText()));
                     (selectedItem).getChildren().remove(temp_tf);
-                } else if (e.getCode() == KeyCode.ENTER && temp_tf.getText().isEmpty()){
+                } else if (e.getCode() == KeyCode.ENTER && temp_tf.getText().isEmpty()) {
                     (selectedItem).getChildren().remove(temp_tf);
                     (selectedItem).getLabel().setText(old_name);
                 }
@@ -196,34 +204,33 @@ public class MainCtrl implements Initializable {
 //            cd_temp.renameTo(new File)
         });
         copy.setOnAction(actionEvent -> {
-            listView.getSelectionModel().getSelectedItems().forEach( e->
-                cd_copy.add(new File(CurrentUser.getUser().getCD().getAbsoluteFile(), ((ListContainer) e).getLabel().getText()))
+            listView.getSelectionModel().getSelectedItems().forEach(e ->
+                    cd_copy.add(new File(CurrentUser.getUser().getCD().getAbsoluteFile(), ((ListContainer) e).getLabel().getText()))
             );
         });
         paste.setOnAction(actionEvent -> {
-            Platform.runLater( new Runnable() {
+            Platform.runLater(new Runnable() {
                 public void run() {
                     cd_copy.forEach(file -> {
                         if (((File) file).isDirectory()) {
                             try {
-                                FileUtils.copyDirectoryToDirectory((File)file,CurrentUser.getUser().getCD());
+                                FileUtils.copyDirectoryToDirectory((File) file, CurrentUser.getUser().getCD());
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
                         if (((File) file).isFile()) {
                             try {
-                                FileUtils.copyFileToDirectory((File)file,CurrentUser.getUser().getCD());
+                                FileUtils.copyFileToDirectory((File) file, CurrentUser.getUser().getCD());
                             } catch (IOException ioException) {
                                 ioException.printStackTrace();
                             }
                         }
                         updateFolderViewer();
                     });
-                }});
+                }
             });
-
-
+        });
 
 
         listView.setOnKeyReleased(keyBoardEvent -> {
@@ -231,7 +238,7 @@ public class MainCtrl implements Initializable {
                 cd_temp = new File(CurrentUser.getUser().getCD().getAbsoluteFile(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
                 setParamsTable(cd_temp);
             }
-            if (keyBoardEvent.getCode()==KeyCode.ENTER){
+            if (keyBoardEvent.getCode() == KeyCode.ENTER) {
                 if (((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.directory)
                         || ((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.brukerDirectory)) {
                     String temp = null;
@@ -255,14 +262,79 @@ public class MainCtrl implements Initializable {
 
 
         listView.setOnMouseClicked(mouseEvent -> {
-            if ( mouseEvent.getClickCount() == 1) {
+            if (mouseEvent.getClickCount() == 1) {
                 if (((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.brukerDirectory)) {
                     cd_temp = new File(CurrentUser.getUser().getCD().getAbsoluteFile(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
                     setParamsTable(cd_temp);
+                } else if (((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.twodseq)) {
+                    if (imageview.getChildren().isEmpty()) {
+                        Transition animation = new Transition() {
+                            {
+                                setCycleDuration(Duration.millis(200));
+                            }
+
+                            protected void interpolate(double frac) {
+                                imageview.setMinHeight(300 * frac);
+                            }
+
+                        };
+
+                        animation.play();
+
+                        ProgressIndicator progressIndicator = new ProgressIndicator();
+                        imageview.getChildren().add(progressIndicator);
+                        progressIndicator.translateXProperty().bind(imageview.widthProperty().divide(2.2));
+                        progressIndicator.translateYProperty().bind(imageview.heightProperty().divide(2.2));
+                        File temp = null;
+                        try {
+                            temp = new File(CurrentUser.getUser().getCD().getPath(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
+                        } catch (Exception e) {
+                        }
+                        try {
+                            Bruker bruker = new Bruker();
+                            bruker.setPath(temp.toPath());
+                            DataBruker data = bruker.getData();
+                            float[] realdata = data.getRealData();
+                            int[] visucoresize = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreSize").toIntVector();
+                            double[] visucoreextent = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreExtent").toDoubleVector();
+
+                            WritableImage image = new WritableImage(visucoresize[0], visucoresize[1]);
+                            PixelWriter pixelWriter = image.getPixelWriter();
+                            Float max = Collections.max(Arrays.asList(ArrayUtils.toObject(realdata)));
+                            for (int y = 0; y < visucoresize[0]; y++) {
+                                for (int x = 0; x < visucoresize[1]; x++) {
+                                    double dataOfPoint = realdata[x + (visucoresize[1] * y)];
+                                    Color color = Color.gray(dataOfPoint / max);
+                                    pixelWriter.setColor(x, y, color);
+                                }
+                            }
+                            ImageView imageView = new ImageView(image);
+                            imageView.setFitWidth(visucoreextent[1]);
+                            imageView.setFitHeight(visucoreextent[0]);
+//                        imageView.fitHeightProperty().bind( ctrler.getImagePane().heightProperty());
+//                        imageView.fitWidthProperty().bind( ctrler.getImagePane().widthProperty());
+                            canvas.heightProperty().bind(imageview.heightProperty());
+                            canvas.widthProperty().bind(imageview.widthProperty());
+                            canvas.setImage(imageView.getImage());
+                            leftStatus.setText("file is loaded");
+                            imageview.getChildren().remove(progressIndicator);
+                            canvas.requestFocus();
+
+                            imageview.getChildren().add(canvas);
+                        } catch (Exception e) {
+                            imageview.getChildren().remove(progressIndicator);
+                            Label label = new Label("Problem in Loading");
+                            imageview.getChildren().add(label);
+                        }
+                        Platform.runLater(() -> {
+                            canvas.repaint();
+                        });
+                    }
+
                 }
-            } else if (mouseEvent.getClickCount() == 2){
+            } else if (mouseEvent.getClickCount() == 2) {
                 if (((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.directory)
-                || ((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.brukerDirectory)) {
+                        || ((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.brukerDirectory)) {
                     String temp = null;
                     try {
                         temp = CurrentUser.getUser().getCD().getPath();
@@ -271,7 +343,8 @@ public class MainCtrl implements Initializable {
                     CurrentUser.getUser().setCd(new File(temp, ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText()));
                     updateFolderViewer();
                     updatePathField();
-                } else if (((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.text)) {
+                } else if (((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.text)
+                        || ((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.twodseq)) {
                     try {
 //                        CurrentUser.getUser().setCd(new File(CurrentUser.getUser().getCD().getAbsoluteFile(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText()));
                         openfile(((ListContainer) listView.getSelectionModel().getSelectedItem()));
@@ -292,7 +365,7 @@ public class MainCtrl implements Initializable {
         });
         bookmarkstage();
         likedpathObservable = FXCollections.observableArrayList(CurrentUser.getUser().likedPaths);
-        ((BookmarkCtrlr) bookmark.getController()).likedlist.setItems(likedpathObservable );
+        ((BookmarkCtrlr) bookmark.getController()).likedlist.setItems(likedpathObservable);
         ((BookmarkCtrlr) bookmark.getController()).likedlist.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         like.setOnAction(actionEvent -> {
             if (like.isSelected()) {
@@ -306,7 +379,7 @@ public class MainCtrl implements Initializable {
         });
 
         forward.setOnAction(this::openLikedList);
-        Nd4j.create(1,1);
+        Nd4j.create(1, 1);
 
 
 //        folderView.setRoot(mainRoot);
@@ -358,10 +431,10 @@ public class MainCtrl implements Initializable {
             bookmarkstage.close();
         });
         bookmarkCtrlr.likedlist.setOnMouseClicked(mouseEvent -> {
-            if (mouseEvent.getClickCount() == 1 ) {
+            if (mouseEvent.getClickCount() == 1) {
                 bookmarkCtrlr.deslikedpath.setText(((LikedPath) bookmarkCtrlr.likedlist.getSelectionModel().getSelectedItem()).getDescp());
                 bookmarkCtrlr.namelikedpath.setText(((LikedPath) bookmarkCtrlr.likedlist.getSelectionModel().getSelectedItem()).getName());
-            } else if (mouseEvent.getClickCount() == 2 ) {
+            } else if (mouseEvent.getClickCount() == 2) {
                 CurrentUser.getUser().setCd(new File((((LikedPath) bookmarkCtrlr.likedlist.getSelectionModel().getSelectedItem()).toString())));
                 updatePathField();
                 updateFolderViewer();
@@ -386,25 +459,39 @@ public class MainCtrl implements Initializable {
 
     private void backwardPath(ActionEvent actionEvent) {
         File parentFile = CurrentUser.getUser().getCD().getParentFile();
-            if (parentFile != null) {
-                CurrentUser.getUser().setCd(CurrentUser.getUser().getCD().getParentFile());
-                updateFolderViewer();
-                updatePathField();
-            } else {
-                listView.getItems().clear();
-                for (File file:listRoot){
-                    ListContainer listContainer = new ListContainer(file);
-                    listView.getItems().add(listContainer);
-                }
-                CurrentUser.getUser().setCd(new File(""));
-                pathField.setText("root");
+        if (parentFile != null) {
+            CurrentUser.getUser().setCd(CurrentUser.getUser().getCD().getParentFile());
+            updateFolderViewer();
+            updatePathField();
+        } else {
+            listView.getItems().clear();
+            for (File file : listRoot) {
+                ListContainer listContainer = new ListContainer(file);
+                listView.getItems().add(listContainer);
             }
+            CurrentUser.getUser().setCd(new File(""));
+            pathField.setText("root");
+        }
+        Transition animation = new Transition() {
+            {
+                setCycleDuration(Duration.millis(1000));
+            }
+
+            protected void interpolate(double frac) {
+                imageview.setMaxHeight(300 - frac * 300);
+            }
+
+        };
+
+        animation.play();
+        imageview.getChildren().clear();
+        imageview.setMinHeight(0);
     }
 
     private void updateFolderViewer() {
         listView.getItems().clear();
         try {
-            for (File file:CurrentUser.getUser().getCD().listFiles()){
+            for (File file : CurrentUser.getUser().getCD().listFiles()) {
                 ListContainer listContainer = new ListContainer(file);
                 listView.getItems().add(listContainer);
             }
@@ -415,7 +502,7 @@ public class MainCtrl implements Initializable {
 
     private void updatePathField() {
         pathField.setText(CurrentUser.getUser().getCD().getAbsolutePath());
-        if (CurrentUser.getUser().getLikedPaths().stream().anyMatch(o -> o.toString().equals(CurrentUser.getUser().getCD().getAbsolutePath()))){
+        if (CurrentUser.getUser().getLikedPaths().stream().anyMatch(o -> o.toString().equals(CurrentUser.getUser().getCD().getAbsolutePath()))) {
             like.setSelected(true);
         } else {
             like.setSelected(false);
@@ -430,7 +517,7 @@ public class MainCtrl implements Initializable {
     private void convert2nii(ActionEvent actionEvent) {
         ListContainer selected = null;
         selected = (ListContainer) listView.getSelectionModel().getSelectedItem();
-        if (selected.getType().equals(FileType.fid) || selected.getType().equals(FileType.twodseq)  ) {
+        if (selected.getType().equals(FileType.fid) || selected.getType().equals(FileType.twodseq)) {
             FXMLLoader convertorDialog = new FXMLLoader(App.class.getResource("convertor" + ".fxml"));
             Parent parent = null;
             try {
@@ -464,9 +551,9 @@ public class MainCtrl implements Initializable {
             cntrl.logger.textProperty().bind(loggerText);
             cntrl.convertButton.setOnAction(e -> {
                 cntrl.progressBar.setVisible(true);
-                if (path !=null) {
+                if (path != null) {
                     String niftiName = cntrl.niftiName.getText();
-                    if(niftiName.endsWith(".nii")) {
+                    if (niftiName.endsWith(".nii")) {
                         if (cntrl.compression.isSelected()) {
                             niftiName = niftiName + ".gz";
                         }
@@ -476,9 +563,9 @@ public class MainCtrl implements Initializable {
                         }
                     } else {
                         niftiName = niftiName + ".nii";
-                            if (cntrl.compression.isSelected()) {
-                                niftiName = niftiName + ".gz";
-                            }
+                        if (cntrl.compression.isSelected()) {
+                            niftiName = niftiName + ".gz";
+                        }
                     }
 
                     Path path2nii = Paths.get(path).getParent().resolve(niftiName);
@@ -505,28 +592,28 @@ public class MainCtrl implements Initializable {
                             }
                         }).start();
                     } else {
-                            Bruker2nii bruker2nii = new Bruker2nii(path);
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    boolean rslt = false;
-                                    try {
-                                        rslt = bruker2nii.convert(path2nii.toString(), (DataType) (cntrl.dataType.getSelectionModel().getSelectedItem()));
-                                        updateFolderViewer();
-                                    } catch (Exception exception) {
-                                        exception.printStackTrace();
-                                        loggerText.set(loggerText.get()+"\n"+ "Unuccessful Conversion :( ");
-                                    }
-                                    if (rslt) {
-                                        loggerText.set(loggerText.get()+"\n"+ "Successful Conversion: " + path2nii);
-                                        cntrl.progressBar.setVisible(false);
-                                    } else {
-                                        loggerText.set(loggerText.get()+"\n"+ "Unuccessful Conversion :( ");
-                                        cntrl.progressBar.setVisible(false);
-                                    }
+                        Bruker2nii bruker2nii = new Bruker2nii(path);
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                boolean rslt = false;
+                                try {
+                                    rslt = bruker2nii.convert(path2nii.toString(), (DataType) (cntrl.dataType.getSelectionModel().getSelectedItem()));
+                                    updateFolderViewer();
+                                } catch (Exception exception) {
+                                    exception.printStackTrace();
+                                    loggerText.set(loggerText.get() + "\n" + "Unuccessful Conversion :( ");
                                 }
-                            }).start();
-                        }
+                                if (rslt) {
+                                    loggerText.set(loggerText.get() + "\n" + "Successful Conversion: " + path2nii);
+                                    cntrl.progressBar.setVisible(false);
+                                } else {
+                                    loggerText.set(loggerText.get() + "\n" + "Unuccessful Conversion :( ");
+                                    cntrl.progressBar.setVisible(false);
+                                }
+                            }
+                        }).start();
+                    }
                 } else {
                 }
 
@@ -543,32 +630,32 @@ public class MainCtrl implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-            DefaultEditorCtlr defualtEditorCtlr = (DefaultEditorCtlr) deDialog.getController();
-            defualtEditorCtlr.open.setText("Save");
-            defualtEditorCtlr.dontshow.setVisible(false);
-            Scene scene = new Scene(parent, 524.0, 258);
-            Stage stage = new Stage();
-            stage.setScene(scene);
-            stage.show();
-            defualtEditorCtlr.pathViewer.setText(CurrentUser.getUser().pathViewr);
-            defualtEditorCtlr.selector.setOnAction(actionEvent1 -> {
-                FileChooser dc = new FileChooser();
-                dc.setInitialDirectory(new File(System.getProperty("user.home")));
-                File path2viewer = dc.showOpenDialog(null);
-                if(path2viewer == null || ! path2viewer.isFile()) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setHeaderText("Could not open directory");
-                    alert.setContentText("The file is invalid.");
-                    alert.showAndWait();
-                } else {
-                    defualtEditorCtlr.pathViewer.setText(path2viewer.getAbsolutePath());
-                    CurrentUser.getUser().pathViewr = path2viewer.getPath();
-                }
-            });
-            defualtEditorCtlr.open.setOnAction(actionEvent2 -> {
-                    CurrentUser.getUser().dontshoweditor = (defualtEditorCtlr.dontshow.selectedProperty().get());
-                    stage.close();
-            });
+        DefaultEditorCtlr defualtEditorCtlr = (DefaultEditorCtlr) deDialog.getController();
+        defualtEditorCtlr.open.setText("Save");
+        defualtEditorCtlr.dontshow.setVisible(false);
+        Scene scene = new Scene(parent, 524.0, 258);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
+        defualtEditorCtlr.pathViewer.setText(CurrentUser.getUser().pathViewr);
+        defualtEditorCtlr.selector.setOnAction(actionEvent1 -> {
+            FileChooser dc = new FileChooser();
+            dc.setInitialDirectory(new File(System.getProperty("user.home")));
+            File path2viewer = dc.showOpenDialog(null);
+            if (path2viewer == null || !path2viewer.isFile()) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText("Could not open directory");
+                alert.setContentText("The file is invalid.");
+                alert.showAndWait();
+            } else {
+                defualtEditorCtlr.pathViewer.setText(path2viewer.getAbsolutePath());
+                CurrentUser.getUser().pathViewr = path2viewer.getPath();
+            }
+        });
+        defualtEditorCtlr.open.setOnAction(actionEvent2 -> {
+            CurrentUser.getUser().dontshoweditor = (defualtEditorCtlr.dontshow.selectedProperty().get());
+            stage.close();
+        });
     }
 
     private void RenameFiles(ActionEvent actionEvent) {
@@ -619,7 +706,7 @@ public class MainCtrl implements Initializable {
                     for (Object listContainer : finalSelectedItems) {
                         if (((ListContainer) listContainer).getType().equals(FileType.brukerDirectory)) {
                             if (renamctrlr.copy.isSelected()) {
-                                file = new File(((ListContainer) (listContainer)).getFile().getPath()+"_copy");
+                                file = new File(((ListContainer) (listContainer)).getFile().getPath() + "_copy");
                                 try {
                                     FileUtils.copyDirectory(((ListContainer) (listContainer)).getFile(), file);
                                 } catch (IOException e) {
@@ -632,48 +719,44 @@ public class MainCtrl implements Initializable {
 
                             if (((ListContainer) (listContainer)) != null) {
                                 JcampdxData studyList = getStudyList(((ListContainer) (listContainer)).getFile());
-                                        String studyName = "";
+                                String studyName = "";
+                                try {
+                                    String absPath = file.getParent();
+
+                                    for (String string : strings
+                                    ) {
+                                        String tostring;
                                         try {
-                                            String absPath = file.getParent();
-
-                                            for (String string : strings
-                                            ) {
-                                                String tostring;
-                                                try {
-                                                    ArrayList arr = (ArrayList) studyList.getParameters().get(string);
-                                                    tostring = ArrayUtils.toString(arr.get(0));
-                                                } catch (Exception e) {
-                                                    tostring = studyList.getParameters().get(string).toString();
-                                                }
-                                                studyName = studyName + tostring + "_";
-                                            }
-                                            studyName = studyName.substring(0, studyName.length() - 1);
-                                            int i = 1;
-                                            if (!file.renameTo(new File(absPath ,studyName))) {
-                                                while (!file.renameTo(new File(absPath + "/" + studyName + "(" + i + ")"))) {
-                                                    i += 1;
-                                                }
-                                                loggerText.set(loggerText.get() + "\n" + file.getName() + "  was changed to  " + studyName + "(" + i + ")");
-                                            } else {
-                                                loggerText.set(loggerText.get() + "\n" + file.getName() + "  was changed to  " + studyName);
-                                            }
+                                            ArrayList arr = (ArrayList) studyList.getParameters().get(string);
+                                            tostring = ArrayUtils.toString(arr.get(0));
                                         } catch (Exception e) {
-                                            loggerText.set(loggerText.get() + "\n" + file.getName() + "  could not be changed to  " + studyName);
+                                            tostring = studyList.getParameters().get(string).toString();
                                         }
-                                    } else {
-
+                                        studyName = studyName + tostring + "_";
                                     }
+                                    studyName = studyName.substring(0, studyName.length() - 1);
+                                    int i = 1;
+                                    if (!file.renameTo(new File(absPath, studyName))) {
+                                        while (!file.renameTo(new File(absPath + "/" + studyName + "(" + i + ")"))) {
+                                            i += 1;
+                                        }
+                                        loggerText.set(loggerText.get() + "\n" + file.getName() + "  was changed to  " + studyName + "(" + i + ")");
+                                    } else {
+                                        loggerText.set(loggerText.get() + "\n" + file.getName() + "  was changed to  " + studyName);
+                                    }
+                                } catch (Exception e) {
+                                    loggerText.set(loggerText.get() + "\n" + file.getName() + "  could not be changed to  " + studyName);
                                 }
+                            } else {
 
-
-
-                             else {
-                        loggerText.set(loggerText.get() + "\n" + "Apparently the selected directory is not valid Bruker directory");
-                    }
+                            }
+                        } else {
+                            loggerText.set(loggerText.get() + "\n" + "Apparently the selected directory is not valid Bruker directory");
+                        }
                     }
                     updateFolderViewer();
                     renamctrlr.progressbar.setVisible(false);
-                        }
+                }
 
 
                 ;
@@ -689,7 +772,7 @@ public class MainCtrl implements Initializable {
     private void getParametersforPrediction(TextField textField) {
         try {
             Set<String> keysets = (studyList.getParameters()).keySet();
-            TextFields.bindAutoCompletion(textField,keysets);
+            TextFields.bindAutoCompletion(textField, keysets);
         } catch (Exception e) {
 
         }
@@ -698,7 +781,8 @@ public class MainCtrl implements Initializable {
     private void AddParam(KeyEvent actionEvent) {
         try {
             CurrentUser.getUser().selectedParameters.add(parameterTextField.getText());
-        } catch (Exception e) { }
+        } catch (Exception e) {
+        }
         setParamsTable(cd_temp);
         parameterTextField.clear();
     }
@@ -784,123 +868,32 @@ public class MainCtrl implements Initializable {
 //    }
 
     private void openfile(ListContainer selectedItem) throws IOException {
-//        switch (selected.getFileName().toString()){
-////            case "acqp":
-////                System.out.println("acqp");
-////                ProcessBuilder pb = new ProcessBuilder("Notepad.exe", selected.toString());
-////                pb.start();
-////                break;
-////            case "method":
-////                System.out.println("acqp");
-////                break;
-////            case "reco":
-////                System.out.println("acqp");
-////                break;
-////            case "visupars":
-////                System.out.println("acqp");
-////                break;
-//            case "fid":
-//                System.out.println("fid");
+        switch (selectedItem.type) {
+            case text: {
+//                System.out.println("acqp");
+//                ProcessBuilder pb = new ProcessBuilder("Notepad.exe", selectedItem.getFile().toString());
+//                pb.start();
+                opentext();
+                break;
+            }
+            case twodseq: {
+                openImage();
+                break;
+            }
+//            case "method":
+//                System.out.println("acqp");
 //                break;
-//            case "2dseq":
-//                System.out.println("2dseq");
+//            case "reco":
+//                System.out.println("acqp");
 //                break;
-//            default:
-
-                    FXMLLoader deDialog = new FXMLLoader(App.class.getResource("defaultEditor" + ".fxml"));
-                    Parent parent = null;
-                    try {
-                        parent = deDialog.load();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                DefaultEditorCtlr defualtEditorCtlr = (DefaultEditorCtlr) deDialog.getController();
-
-                if (!CurrentUser.getUser().dontshoweditor) {
-                    Scene scene = new Scene(parent, 524.0, 258);
-                    Stage stage = new Stage();
-                    stage.setScene(scene);
-                    stage.show();
-                    defualtEditorCtlr.pathViewer.setText(CurrentUser.getUser().pathViewr);
-                    defualtEditorCtlr.selector.setOnAction(actionEvent -> {
-                                FileChooser dc = new FileChooser();
-                                dc.setInitialDirectory(new File(System.getProperty("user.home")));
-                                File path2viewer = dc.showOpenDialog(null);
-                                if(path2viewer == null || ! path2viewer.isFile()) {
-                                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                                    alert.setHeaderText("Could not open directory");
-                                    alert.setContentText("The file is invalid.");
-                                    alert.showAndWait();
-                                } else {
-                                    defualtEditorCtlr.pathViewer.setText(path2viewer.getAbsolutePath());
-                                    CurrentUser.getUser().pathViewr = path2viewer.getPath();
-                                }
-                    });
-                    defualtEditorCtlr.open.setOnAction(actionEvent -> {
-                        String temp = null;
-                        try {
-                            temp = new File(CurrentUser.getUser().getCD().getPath(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText()).toString();
-                        } catch (Exception e) {
-                        }
-                        ProcessBuilder pb = new ProcessBuilder(defualtEditorCtlr.pathViewer.getText(), temp);
-                        try {
-                            pb.start();
-                            CurrentUser.getUser().dontshoweditor = (defualtEditorCtlr.dontshow.selectedProperty().get());
-                            stage.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-                } else {
-                    String temp = null;
-                    try {
-                        temp = new File(CurrentUser.getUser().getCD().getPath(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText()).toString();
-                    } catch (Exception e) {
-                    }
-                    ProcessBuilder pb = new ProcessBuilder(CurrentUser.getUser().pathViewr, temp);
-                    try {
-                        pb.start();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
+//            case "visupars":
+//                System.out.println("acqp");
+//                break;
         }
-//        FXMLLoader imageViwerFXMLLoader = new FXMLLoader(App.class.getResource("imageViwer" + ".fxml"));
-//        Scene imageViwerScene = new Scene(imageViwerFXMLLoader.load(), 640, 480);
-//        Stage imageViwerStage = new Stage();
-//        imageViwerStage.setScene(imageViwerScene);
-//        imageViwerStage.show();
-//        ImageViwer ctrler = imageViwerFXMLLoader.getController();
-//
-//
-//
-//                    Bruker bruker = new Bruker();
-//                    bruker.setPath(selected.toAbsolutePath());
-//                    DataBruker data = bruker.getData();
-//                    float[] realdata = data.getRealData();
-//
-//                    WritableImage image = new WritableImage(256, 256);
-//                    PixelWriter pixelWriter = image.getPixelWriter();
-//                    for (int y=0; y<256; y++) {
-//                        for (int x=0; x<256; x++) {
-//
-//                        double dataOfPoint = realdata[x+(256*y)] ;
-//                        Color color = Color.hsb(dataOfPoint, 1, 1);
-//                            pixelWriter.setColor(x, y, color);
-//                        }
-//                    }
-//                    ImageView imageView = new ImageView(image);
-////                    ImageViwer imageViwer = new ImageViwer();
-////                    ImageViewer.getChildren().add(imageViwer);
-////                    imageViwer.stackPane.getChildren().add(imageView);
-//                    FxImageCanvas canvas = new FxImageCanvas();
-//                    ctrler.getImagePane().getChildren().add(canvas);
-////                    ImageViewer.getChildren().add(canvas);
-//                    canvas.widthProperty().bind(ScrollPane.widthProperty());
-//                    canvas.heightProperty().bind(ScrollPane.heightProperty());
-//                    canvas.setImage(imageView.getImage());
-//                    leftStatus.setText("file is loaded");
+
+
+    }
+
     private void setParamsTable(File selected) {
         try {
             studyList = getStudyList(selected);
@@ -924,7 +917,7 @@ public class MainCtrl implements Initializable {
                 } catch (Exception e) {
                     tostring = studyList.getParameters().get(param).toString();
                 }
-                item.put("Values" , tostring);
+                item.put("Values", tostring);
             } catch (Exception e) {
 
             }
@@ -938,24 +931,24 @@ public class MainCtrl implements Initializable {
 
     public JcampdxData getStudyList(File f) {
         JcampdxData jcampdxData = null;
-        if(f.isDirectory()) {
+        if (f.isDirectory()) {
             try {
-                String acqp_ = (new File(f , "acqp")).toString();
-                String method_ = (new File(f , "method")).toString();
+                String acqp_ = (new File(f, "acqp")).toString();
+                String method_ = (new File(f, "method")).toString();
                 File seq_ = new File(f, "pdata" + File.separator + "1");
                 String visupars_ = (new File(seq_, "visu_pars")).toString();
                 String reco_ = (new File(seq_, "reco")).toString();
                 Map<String, Object> jcampdx_file = null;
-                if(Arrays.asList(f.list()).contains("acqp")) {
+                if (Arrays.asList(f.list()).contains("acqp")) {
                     jcampdx_file = Jcampdx.read_jcampdx_file(acqp_);
                 }
-                if(Arrays.asList(f.list()).contains("method")) {
+                if (Arrays.asList(f.list()).contains("method")) {
                     jcampdx_file.putAll(Jcampdx.read_jcampdx_file(method_));
                 }
-                if(Arrays.asList(seq_.list()).contains("reco")) {
+                if (Arrays.asList(seq_.list()).contains("reco")) {
                     jcampdx_file.putAll(Jcampdx.read_jcampdx_file(visupars_));
                 }
-                if(Arrays.asList(seq_.list()).contains("visu_pars")) {
+                if (Arrays.asList(seq_.list()).contains("visu_pars")) {
                     jcampdx_file.putAll(Jcampdx.read_jcampdx_file(reco_));
                 }
                 jcampdxData = new JcampdxData(jcampdx_file);
@@ -969,16 +962,16 @@ public class MainCtrl implements Initializable {
         return jcampdxData;
     }
 
-    public TreeItem<String> getNodesForDirectory(File directory,boolean parent) {
+    public TreeItem<String> getNodesForDirectory(File directory, boolean parent) {
         TreeItem<String> root;
         if (!parent) {
             root = new TreeItem<String>(directory.getName());
         } else {
             root = new TreeItem<String>(directory.getAbsolutePath());
         }
-        for(File f : directory.listFiles()) {
-            if(f.isDirectory()) {
-                root.getChildren().add(getNodesForDirectory(f,false));
+        for (File f : directory.listFiles()) {
+            if (f.isDirectory()) {
+                root.getChildren().add(getNodesForDirectory(f, false));
             } else {
                 root.getChildren().add(new TreeItem<String>(f.getName()));
             }
@@ -1003,5 +996,142 @@ public class MainCtrl implements Initializable {
 
     public void quit() {
         System.exit(0);
+    }
+
+
+    private void openImage() throws IOException {
+        FXMLLoader imageViwerFXMLLoader = new FXMLLoader(App.class.getResource("imageViewer" + ".fxml"));
+        Scene imageViwerScene = new Scene(imageViwerFXMLLoader.load(), 800, 600);
+
+        Stage imageViwerStage = new Stage();
+        imageViwerStage.setResizable(false);
+        ImageViwer ctrler = imageViwerFXMLLoader.getController();
+
+        File temp = null;
+        try {
+            temp = new File(CurrentUser.getUser().getCD().getPath(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
+        } catch (Exception e) {
+        }
+
+        Bruker bruker = new Bruker();
+        bruker.setPath(temp.toPath());
+        DataBruker data = bruker.getData();
+        float[] realdata = data.getRealData();
+        int[] visucoresize = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreSize").toIntVector();
+        double[] visucoreextent = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreExtent").toDoubleVector();
+        FxImageCanvas canvas = new FxImageCanvas();
+        if (visucoresize.length > 2) {
+            for (int i = 0; i < visucoresize[2]; i++) {
+                WritableImage image = new WritableImage(visucoresize[0], visucoresize[1]);
+                PixelWriter pixelWriter = image.getPixelWriter();
+                for (int y = 0; y < visucoresize[0]; y++) {
+                    for (int x = 0; x < visucoresize[1]; x++) {
+
+                        double dataOfPoint = realdata[x + (visucoresize[1] * y)];
+                        Color color = Color.hsb(dataOfPoint, 1, 1);
+                        pixelWriter.setColor(x, y, color);
+                    }
+                }
+                ImageView imageView = new ImageView(image);
+                imageView.setFitWidth(visucoreextent[0]);
+                imageView.setFitHeight(visucoreextent[1]);
+//                        imageView.fitHeightProperty().bind( ctrler.getImagePane().heightProperty());
+//                        imageView.fitWidthProperty().bind( ctrler.getImagePane().widthProperty());
+
+                StackPane stackPane = new StackPane();
+                canvas.heightProperty().bind(stackPane.heightProperty());
+                canvas.widthProperty().bind(stackPane.widthProperty());
+                canvas.setImage(imageView.getImage());
+                leftStatus.setText("file is loaded");
+
+                ctrler.getImagePane().getChildren().add(stackPane);
+            }
+        } else {
+            WritableImage image = new WritableImage(visucoresize[0], visucoresize[1]);
+            PixelWriter pixelWriter = image.getPixelWriter();
+            Float max = Collections.max(Arrays.asList(ArrayUtils.toObject(realdata)));
+            for (int y = 0; y < visucoresize[0]; y++) {
+                for (int x = 0; x < visucoresize[1]; x++) {
+                    double dataOfPoint = realdata[x + (visucoresize[1] * y)];
+                    Color color = Color.gray(dataOfPoint / max);
+                    pixelWriter.setColor(x, y, color);
+                }
+            }
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(visucoreextent[1]);
+            imageView.setFitHeight(visucoreextent[0]);
+//                        imageView.fitHeightProperty().bind( ctrler.getImagePane().heightProperty());
+//                        imageView.fitWidthProperty().bind( ctrler.getImagePane().widthProperty());
+
+            canvas.heightProperty().bind(ctrler.getImagePane().heightProperty());
+            canvas.widthProperty().bind(ctrler.getImagePane().widthProperty());
+            canvas.setImage(imageView.getImage());
+            leftStatus.setText("file is loaded");
+            ctrler.getImagePane().getChildren().add(canvas);
+        }
+
+        imageViwerStage.setScene(imageViwerScene);
+        imageViwerStage.show();
+        canvas.repaint();
+    }
+
+    private void opentext() {
+        FXMLLoader deDialog = new FXMLLoader(App.class.getResource("defaultEditor" + ".fxml"));
+        Parent parent = null;
+        try {
+            parent = deDialog.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        DefaultEditorCtlr defualtEditorCtlr = (DefaultEditorCtlr) deDialog.getController();
+
+        if (!CurrentUser.getUser().dontshoweditor) {
+            Scene scene = new Scene(parent, 524.0, 258);
+            Stage stage = new Stage();
+            stage.setScene(scene);
+            stage.show();
+            defualtEditorCtlr.pathViewer.setText(CurrentUser.getUser().pathViewr);
+            defualtEditorCtlr.selector.setOnAction(actionEvent -> {
+                FileChooser dc = new FileChooser();
+                dc.setInitialDirectory(new File(System.getProperty("user.home")));
+                File path2viewer = dc.showOpenDialog(null);
+                if (path2viewer == null || !path2viewer.isFile()) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText("Could not open directory");
+                    alert.setContentText("The file is invalid.");
+                    alert.showAndWait();
+                } else {
+                    defualtEditorCtlr.pathViewer.setText(path2viewer.getAbsolutePath());
+                    CurrentUser.getUser().pathViewr = path2viewer.getPath();
+                }
+            });
+            defualtEditorCtlr.open.setOnAction(actionEvent -> {
+                String temp = null;
+                try {
+                    temp = new File(CurrentUser.getUser().getCD().getPath(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText()).toString();
+                } catch (Exception e) {
+                }
+                ProcessBuilder pb = new ProcessBuilder(defualtEditorCtlr.pathViewer.getText(), temp);
+                try {
+                    pb.start();
+                    CurrentUser.getUser().dontshoweditor = (defualtEditorCtlr.dontshow.selectedProperty().get());
+                    stage.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        } else {
+            String temp = null;
+            try {
+                temp = new File(CurrentUser.getUser().getCD().getPath(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText()).toString();
+            } catch (Exception e) {
+            }
+            ProcessBuilder pb = new ProcessBuilder(CurrentUser.getUser().pathViewr, temp);
+            try {
+                pb.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
