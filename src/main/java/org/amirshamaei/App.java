@@ -27,6 +27,7 @@ public class App extends Application {
 //        CurrentUser.setUser(new User("amir"));
 //        scene = new Scene(loadFXML("main"));
         stage.setScene(scene);
+        stage.setTitle("Bruker Eyes");
         File f = new File("src\\main\\resources\\org\\amirshamaei\\icons\\icon.png");
         Image icon = new Image(f.toURI().toString());
         stage.getIcons().add(icon);

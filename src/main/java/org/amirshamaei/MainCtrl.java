@@ -15,6 +15,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -23,6 +24,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.image.ImageView;
@@ -268,67 +270,68 @@ public class MainCtrl implements Initializable {
                     setParamsTable(cd_temp);
                 } else if (((ListContainer) listView.getSelectionModel().getSelectedItem()).getType().equals(FileType.twodseq)) {
                     if (imageview.getChildren().isEmpty()) {
-                        Transition animation = new Transition() {
-                            {
-                                setCycleDuration(Duration.millis(200));
-                            }
 
-                            protected void interpolate(double frac) {
-                                imageview.setMinHeight(300 * frac);
-                            }
+//                        imageview.setMinHeight(300);
+                            Transition animation = new Transition() {
+                                {
+                                    setCycleDuration(Duration.millis(500));
+                                }
 
-                        };
+                                protected void interpolate(double frac) {
+                                    imageview.setMinHeight(300 * frac);
+                                }
 
-                        animation.play();
+                            };
+
+                            animation.play();
+
 
                         ProgressIndicator progressIndicator = new ProgressIndicator();
-                        imageview.getChildren().add(progressIndicator);
                         progressIndicator.translateXProperty().bind(imageview.widthProperty().divide(2.2));
                         progressIndicator.translateYProperty().bind(imageview.heightProperty().divide(2.2));
-                        File temp = null;
-                        try {
-                            temp = new File(CurrentUser.getUser().getCD().getPath(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
-                        } catch (Exception e) {
-                        }
-                        try {
-                            Bruker bruker = new Bruker();
-                            bruker.setPath(temp.toPath());
-                            DataBruker data = bruker.getData();
-                            float[] realdata = data.getRealData();
-                            int[] visucoresize = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreSize").toIntVector();
-                            double[] visucoreextent = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreExtent").toDoubleVector();
+                        imageview.getChildren().add(progressIndicator);
 
-                            WritableImage image = new WritableImage(visucoresize[0], visucoresize[1]);
-                            PixelWriter pixelWriter = image.getPixelWriter();
-                            Float max = Collections.max(Arrays.asList(ArrayUtils.toObject(realdata)));
-                            for (int y = 0; y < visucoresize[0]; y++) {
-                                for (int x = 0; x < visucoresize[1]; x++) {
-                                    double dataOfPoint = realdata[x + (visucoresize[1] * y)];
-                                    Color color = Color.gray(dataOfPoint / max);
-                                    pixelWriter.setColor(x, y, color);
+
+
+
+
+
+
+                        Task<Void> applyTask = new Task<Void>() {
+
+                            @Override
+                            protected Void call() throws Exception {
+
+//                                Thread.sleep(10000);
+
+                                File temp = null;
+                                try {
+                                    temp = new File(CurrentUser.getUser().getCD().getPath(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
+                                } catch (Exception e) {
                                 }
-                            }
-                            ImageView imageView = new ImageView(image);
-                            imageView.setFitWidth(visucoreextent[1]);
-                            imageView.setFitHeight(visucoreextent[0]);
-//                        imageView.fitHeightProperty().bind( ctrler.getImagePane().heightProperty());
-//                        imageView.fitWidthProperty().bind( ctrler.getImagePane().widthProperty());
-                            canvas.heightProperty().bind(imageview.heightProperty());
-                            canvas.widthProperty().bind(imageview.widthProperty());
-                            canvas.setImage(imageView.getImage());
-                            leftStatus.setText("file is loaded");
-                            imageview.getChildren().remove(progressIndicator);
-                            canvas.requestFocus();
 
+                                plot2dseqOnCanvas(temp);
+
+                                Platform.runLater(() -> {
+                                    canvas.repaint();
+                                });
+                                return null;
+                            }
+                        };
+                        applyTask.setOnSucceeded(e -> {
+                            imageview.getChildren().remove(progressIndicator);
                             imageview.getChildren().add(canvas);
-                        } catch (Exception e) {
+                        });
+                        applyTask.setOnFailed(e -> {
                             imageview.getChildren().remove(progressIndicator);
                             Label label = new Label("Problem in Loading");
                             imageview.getChildren().add(label);
-                        }
-                        Platform.runLater(() -> {
-                            canvas.repaint();
+                            canvas.setImage(null);
                         });
+
+                        new Thread(applyTask, "Apply thread").start();
+
+
                     }
 
                 }
@@ -404,6 +407,39 @@ public class MainCtrl implements Initializable {
 //
     }
 
+    private void plot2dseqOnCanvas(File temp) {
+        Bruker bruker = new Bruker();
+        bruker.setPath(temp.toPath());
+        DataBruker data = bruker.getData();
+        float[] realdata = data.getRealData();
+        int[] visucoresize = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreSize").toIntVector();
+        double[] visucoreextent = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreExtent").toDoubleVector();
+
+        WritableImage image = new WritableImage(visucoresize[0], visucoresize[1]);
+        PixelWriter pixelWriter = image.getPixelWriter();
+        Float max = Collections.max(Arrays.asList(ArrayUtils.toObject(realdata)));
+        for (int y = 0; y < visucoresize[0]; y++) {
+            for (int x = 0; x < visucoresize[1]; x++) {
+                double dataOfPoint = realdata[x + (visucoresize[1] * y)];
+                Color color = Color.gray(dataOfPoint / max);
+                pixelWriter.setColor(x, y, color);
+            }
+        }
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(visucoreextent[1]);
+        imageView.setFitHeight(visucoreextent[0]);
+//                        imageView.fitHeightProperty().bind( ctrler.getImagePane().heightProperty());
+//                        imageView.fitWidthProperty().bind( ctrler.getImagePane().widthProperty());
+        Platform.runLater(()->{
+            canvas.heightProperty().bind(imageview.heightProperty());
+            canvas.widthProperty().bind(imageview.widthProperty());
+            canvas.setImage(imageView.getImage());
+            leftStatus.setText("file is loaded");
+            canvas.requestFocus();
+        });
+
+    }
+
     private void openLikedList(ActionEvent actionEvent) {
         bookmarkstage.show();
         bookmarkstage.toFront();
@@ -474,7 +510,7 @@ public class MainCtrl implements Initializable {
         }
         Transition animation = new Transition() {
             {
-                setCycleDuration(Duration.millis(1000));
+                setCycleDuration(Duration.millis(500));
             }
 
             protected void interpolate(double frac) {
@@ -482,8 +518,8 @@ public class MainCtrl implements Initializable {
             }
 
         };
-
         animation.play();
+
         imageview.getChildren().clear();
         imageview.setMinHeight(0);
     }
@@ -1012,67 +1048,71 @@ public class MainCtrl implements Initializable {
             temp = new File(CurrentUser.getUser().getCD().getPath(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
         } catch (Exception e) {
         }
+//        plot2dseqOnCanvas(temp);
+//        Bruker bruker = new Bruker();
+//        bruker.setPath(temp.toPath());
+//        DataBruker data = bruker.getData();
+//        float[] realdata = data.getRealData();
+//        int[] visucoresize = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreSize").toIntVector();
+//        double[] visucoreextent = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreExtent").toDoubleVector();
+//        FxImageCanvas canvas = new FxImageCanvas();
+//        if (visucoresize.length > 2) {
+//            for (int i = 0; i < visucoresize[2]; i++) {
+//                WritableImage image = new WritableImage(visucoresize[0], visucoresize[1]);
+//                PixelWriter pixelWriter = image.getPixelWriter();
+//                for (int y = 0; y < visucoresize[0]; y++) {
+//                    for (int x = 0; x < visucoresize[1]; x++) {
+//
+//                        double dataOfPoint = realdata[x + (visucoresize[1] * y)];
+//                        Color color = Color.hsb(dataOfPoint, 1, 1);
+//                        pixelWriter.setColor(x, y, color);
+//                    }
+//                }
+//                ImageView imageView = new ImageView(image);
+//                imageView.setFitWidth(visucoreextent[0]);
+//                imageView.setFitHeight(visucoreextent[1]);
+////                        imageView.fitHeightProperty().bind( ctrler.getImagePane().heightProperty());
+////                        imageView.fitWidthProperty().bind( ctrler.getImagePane().widthProperty());
+//
+//                StackPane stackPane = new StackPane();
+//                canvas.heightProperty().bind(stackPane.heightProperty());
+//                canvas.widthProperty().bind(stackPane.widthProperty());
+//                canvas.setImage(imageView.getImage());
+//                leftStatus.setText("file is loaded");
+//
+//                ctrler.getImagePane().getChildren().add(stackPane);
+//            }
+//        } else {
+//            WritableImage image = new WritableImage(visucoresize[0], visucoresize[1]);
+//            PixelWriter pixelWriter = image.getPixelWriter();
+//            Float max = Collections.max(Arrays.asList(ArrayUtils.toObject(realdata)));
+//            for (int y = 0; y < visucoresize[0]; y++) {
+//                for (int x = 0; x < visucoresize[1]; x++) {
+//                    double dataOfPoint = realdata[x + (visucoresize[1] * y)];
+//                    Color color = Color.gray(dataOfPoint / max);
+//                    pixelWriter.setColor(x, y, color);
+//                }
+//            }
+//            ImageView imageView = new ImageView(image);
+//            imageView.setFitWidth(visucoreextent[1]);
+//            imageView.setFitHeight(visucoreextent[0]);
+////                        imageView.fitHeightProperty().bind( ctrler.getImagePane().heightProperty());
+////                        imageView.fitWidthProperty().bind( ctrler.getImagePane().widthProperty());
+//
 
-        Bruker bruker = new Bruker();
-        bruker.setPath(temp.toPath());
-        DataBruker data = bruker.getData();
-        float[] realdata = data.getRealData();
-        int[] visucoresize = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreSize").toIntVector();
-        double[] visucoreextent = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreExtent").toDoubleVector();
-        FxImageCanvas canvas = new FxImageCanvas();
-        if (visucoresize.length > 2) {
-            for (int i = 0; i < visucoresize[2]; i++) {
-                WritableImage image = new WritableImage(visucoresize[0], visucoresize[1]);
-                PixelWriter pixelWriter = image.getPixelWriter();
-                for (int y = 0; y < visucoresize[0]; y++) {
-                    for (int x = 0; x < visucoresize[1]; x++) {
+//            canvas.setImage(imageView.getImage());
 
-                        double dataOfPoint = realdata[x + (visucoresize[1] * y)];
-                        Color color = Color.hsb(dataOfPoint, 1, 1);
-                        pixelWriter.setColor(x, y, color);
-                    }
-                }
-                ImageView imageView = new ImageView(image);
-                imageView.setFitWidth(visucoreextent[0]);
-                imageView.setFitHeight(visucoreextent[1]);
-//                        imageView.fitHeightProperty().bind( ctrler.getImagePane().heightProperty());
-//                        imageView.fitWidthProperty().bind( ctrler.getImagePane().widthProperty());
-
-                StackPane stackPane = new StackPane();
-                canvas.heightProperty().bind(stackPane.heightProperty());
-                canvas.widthProperty().bind(stackPane.widthProperty());
-                canvas.setImage(imageView.getImage());
-                leftStatus.setText("file is loaded");
-
-                ctrler.getImagePane().getChildren().add(stackPane);
-            }
-        } else {
-            WritableImage image = new WritableImage(visucoresize[0], visucoresize[1]);
-            PixelWriter pixelWriter = image.getPixelWriter();
-            Float max = Collections.max(Arrays.asList(ArrayUtils.toObject(realdata)));
-            for (int y = 0; y < visucoresize[0]; y++) {
-                for (int x = 0; x < visucoresize[1]; x++) {
-                    double dataOfPoint = realdata[x + (visucoresize[1] * y)];
-                    Color color = Color.gray(dataOfPoint / max);
-                    pixelWriter.setColor(x, y, color);
-                }
-            }
-            ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(visucoreextent[1]);
-            imageView.setFitHeight(visucoreextent[0]);
-//                        imageView.fitHeightProperty().bind( ctrler.getImagePane().heightProperty());
-//                        imageView.fitWidthProperty().bind( ctrler.getImagePane().widthProperty());
-
-            canvas.heightProperty().bind(ctrler.getImagePane().heightProperty());
-            canvas.widthProperty().bind(ctrler.getImagePane().widthProperty());
-            canvas.setImage(imageView.getImage());
-            leftStatus.setText("file is loaded");
-            ctrler.getImagePane().getChildren().add(canvas);
-        }
-
+//        }
+        FxImageCanvas CopyCanvas = new FxImageCanvas();
+        CopyCanvas.setImage(canvas.image);
+        leftStatus.setText("file is loaded");
+        CopyCanvas.heightProperty().bind(ctrler.getImagePane().heightProperty());
+        CopyCanvas.widthProperty().bind(ctrler.getImagePane().widthProperty());
+        ctrler.getImagePane().getChildren().add(CopyCanvas);
+        imageViwerStage.setTitle(temp.toString());
         imageViwerStage.setScene(imageViwerScene);
         imageViwerStage.show();
-        canvas.repaint();
+        CopyCanvas.repaint();
     }
 
     private void opentext() {

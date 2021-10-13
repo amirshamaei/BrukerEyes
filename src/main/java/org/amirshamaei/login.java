@@ -62,6 +62,7 @@ public class login implements Initializable {
             Users.getInstance().saveUsers();
             String selectedUser = username.getText();
             CurrentUser.setUser(new User(selectedUser));
+            CurrentUser.getUser().pathViewr = "C:\\WINDOWS\\system32\\notepad.exe";
         }
         App.stage.hide();
         Scene scene = new Scene(loadFXML("main"), 1000, 600);
