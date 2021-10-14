@@ -10,7 +10,7 @@ We also would be happy to hear your feedback. In case you face any problem or bu
 This project has received funding from the European Union's Horizon 2020 research and innovation program under the Marie Sklodowska-Curie grant agreement No 813120.
 
 ## License 
-BrukerEyes is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+BrukerEyes is free software: you can redistribute it and/or modify it under the terms of GNU GENERAL PUBLIC LICENSE Version 3.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
