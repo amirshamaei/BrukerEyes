@@ -34,5 +34,7 @@
             <Font name="Arial" size="12.0" />
          </font>
       </Label>
+      <Label layoutX="14.0" layoutY="568.0" text="Version 0.1" textFill="WHITE" />
+      <Button fx:id="update" layoutX="70.0" layoutY="564.0" mnemonicParsing="false" style="-fx-background-color: transparent;" text="[ Check for Updates]" textFill="#f2aeae" />
    </children>
 </AnchorPane>
