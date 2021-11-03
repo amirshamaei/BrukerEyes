@@ -7,24 +7,21 @@ import bruker_plugin_lib.Bruker;
 import bruker_plugin_lib.DataBruker;
 import bruker_plugin_lib.Jcampdx;
 import bruker_plugin_lib.JcampdxData;
-import com.sun.activation.viewers.ImageViewer;
 import javafx.animation.Transition;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.image.ImageView;
@@ -32,12 +29,8 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -48,15 +41,14 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.controlsfx.control.textfield.TextFields;
 import org.nd4j.linalg.factory.Nd4j;
 
+import javax.swing.event.ChangeEvent;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class MainCtrl implements Initializable {
@@ -126,6 +118,10 @@ public class MainCtrl implements Initializable {
     private Stage bookmarkstage;
     private FXMLLoader bookmark;
     private ObservableList<LikedPath> likedpathObservable;
+    private float[] canvas_realdata;
+    private int[] canvas_visucoresize;
+    private double[] canvas_visucoreextent;
+    private FxImageCanvas CopyCanvas;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -411,23 +407,23 @@ public class MainCtrl implements Initializable {
         Bruker bruker = new Bruker();
         bruker.setPath(temp.toPath());
         DataBruker data = bruker.getData();
-        float[] realdata = data.getRealData();
-        int[] visucoresize = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreSize").toIntVector();
-        double[] visucoreextent = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreExtent").toDoubleVector();
+        canvas_realdata = data.getRealData();
+        canvas_visucoresize = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreSize").toIntVector();
+        canvas_visucoreextent = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreExtent").toDoubleVector();
 
-        WritableImage image = new WritableImage(visucoresize[0], visucoresize[1]);
+        WritableImage image = new WritableImage(canvas_visucoresize[0], canvas_visucoresize[1]);
         PixelWriter pixelWriter = image.getPixelWriter();
-        Float max = Collections.max(Arrays.asList(ArrayUtils.toObject(realdata)));
-        for (int y = 0; y < visucoresize[0]; y++) {
-            for (int x = 0; x < visucoresize[1]; x++) {
-                double dataOfPoint = realdata[x + (visucoresize[1] * y)];
+        Float max = Collections.max(Arrays.asList(ArrayUtils.toObject(canvas_realdata)));
+        for (int y = 0; y < canvas_visucoresize[0]; y++) {
+            for (int x = 0; x < canvas_visucoresize[1]; x++) {
+                double dataOfPoint = canvas_realdata[x + (canvas_visucoresize[1] * y)];
                 Color color = Color.gray(dataOfPoint / max);
                 pixelWriter.setColor(x, y, color);
             }
         }
         ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(visucoreextent[1]);
-        imageView.setFitHeight(visucoreextent[0]);
+        imageView.setFitWidth(canvas_visucoreextent[1]);
+        imageView.setFitHeight(canvas_visucoreextent[0]);
 //                        imageView.fitHeightProperty().bind( ctrler.getImagePane().heightProperty());
 //                        imageView.fitWidthProperty().bind( ctrler.getImagePane().widthProperty());
         Platform.runLater(()->{
@@ -436,6 +432,32 @@ public class MainCtrl implements Initializable {
             canvas.setImage(imageView.getImage());
             leftStatus.setText("file is loaded");
             canvas.requestFocus();
+        });
+
+    }
+
+    private void replot2dseqOnCanvas(int i) {
+        WritableImage image = new WritableImage(canvas_visucoresize[0], canvas_visucoresize[1]);
+        PixelWriter pixelWriter = image.getPixelWriter();
+        Float max = Collections.max(Arrays.asList(ArrayUtils.toObject(canvas_realdata)));
+        for (int y = 0; y < canvas_visucoresize[0]; y++) {
+            for (int x = 0; x < canvas_visucoresize[1]; x++) {
+                double dataOfPoint = canvas_realdata[x + (canvas_visucoresize[1] * y) + i*(canvas_visucoresize[1] * canvas_visucoresize[0])];
+                Color color = Color.gray(dataOfPoint / max);
+                pixelWriter.setColor(x, y, color);
+            }
+        }
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(canvas_visucoreextent[1]);
+        imageView.setFitHeight(canvas_visucoreextent[0]);
+//                        imageView.fitHeightProperty().bind( ctrler.getImagePane().heightProperty());
+//                        imageView.fitWidthProperty().bind( ctrler.getImagePane().widthProperty());
+        Platform.runLater(()->{
+            CopyCanvas.setImage(imageView.getImage());
+            CopyCanvas.getCamera().setZoom(2);
+            leftStatus.setText("file is loaded");
+            CopyCanvas.requestFocus();
+            CopyCanvas.repaint();
         });
 
     }
@@ -1037,7 +1059,7 @@ public class MainCtrl implements Initializable {
 
     private void openImage() throws IOException {
         FXMLLoader imageViwerFXMLLoader = new FXMLLoader(App.class.getResource("imageViewer" + ".fxml"));
-        Scene imageViwerScene = new Scene(imageViwerFXMLLoader.load(), 800, 600);
+        Scene imageViwerScene = new Scene(imageViwerFXMLLoader.load(), 960, 720);
 
         Stage imageViwerStage = new Stage();
         imageViwerStage.setResizable(false);
@@ -1103,16 +1125,81 @@ public class MainCtrl implements Initializable {
 //            canvas.setImage(imageView.getImage());
 
 //        }
-        FxImageCanvas CopyCanvas = new FxImageCanvas();
-        CopyCanvas.setImage(canvas.image);
+
+
+        CopyCanvas = new FxImageCanvas();
+        replot2dseqOnCanvas(0);
         leftStatus.setText("file is loaded");
+        ctrler.getImagePane().getChildren().add(CopyCanvas);
         CopyCanvas.heightProperty().bind(ctrler.getImagePane().heightProperty());
         CopyCanvas.widthProperty().bind(ctrler.getImagePane().widthProperty());
-        ctrler.getImagePane().getChildren().add(CopyCanvas);
+//                        imageView.fitHeightProperty().bind( ctrler.getImagePane().heightProperty());
+//                        imageView.fitWidthProperty().bind( ctrler.getImagePane().widthProperty());
         imageViwerStage.setTitle(temp.toString());
         imageViwerStage.setScene(imageViwerScene);
         imageViwerStage.show();
         CopyCanvas.repaint();
+
+        try {
+            ctrler.all.setText(String.valueOf(canvas_visucoresize[2]));
+        } catch (Exception e) {
+            ctrler.all.setText("1");
+        }
+
+        AtomicInteger i = new AtomicInteger();
+        ctrler.id.setText(String.valueOf(i.get()+1));
+
+        ctrler.right.setOnAction(e -> {
+            try {
+                if (i.get() < canvas_visucoresize[2]-1) {
+                    i.incrementAndGet();
+                    replot2dseqOnCanvas(i.get());
+
+//
+//
+//                    CopyCanvas.heightProperty().bind(ctrler.getImagePane().heightProperty());
+//                    CopyCanvas.widthProperty().bind(ctrler.getImagePane().widthProperty());
+//                    CopyCanvas.repaint();
+                    ctrler.id.setText(String.valueOf(i.get()+1));
+                }
+            } catch (Exception exception) {
+
+            }
+        });
+        ctrler.left.setOnAction(e -> {
+            if (i.get() > 0) {
+                i.decrementAndGet();
+                replot2dseqOnCanvas(i.get());
+
+//                leftStatus.setText("file is loaded");
+//                CopyCanvas.heightProperty().bind(ctrler.getImagePane().heightProperty());
+//                CopyCanvas.widthProperty().bind(ctrler.getImagePane().widthProperty());
+//                CopyCanvas.repaint();
+                ctrler.id.setText(String.valueOf(i.get()+1));
+            }
+        });
+        ctrler.slider.setMin(1);
+        try {
+            ctrler.slider.setMax(canvas_visucoresize[2]);
+        } catch (Exception e) {
+            ctrler.slider.setMax(1);
+        }
+        ctrler.slider.valueProperty().addListener(
+                new ChangeListener<Number>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                        replot2dseqOnCanvas(t1.intValue()-1);
+                        CopyCanvas.setImage(canvas.image);
+                        leftStatus.setText("file is loaded");
+                        CopyCanvas.heightProperty().bind(ctrler.getImagePane().heightProperty());
+                        CopyCanvas.widthProperty().bind(ctrler.getImagePane().widthProperty());
+                        CopyCanvas.repaint();
+                        i.set(t1.intValue());
+                        ctrler.id.setText(String.valueOf(i.get()+1));
+                    }
+                }
+        );
+
     }
 
     private void opentext() {

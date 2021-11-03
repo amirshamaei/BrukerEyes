@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.amirshamaei.ImageViwer">
@@ -7,8 +10,49 @@
       <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
             <AnchorPane fx:id="imagePane" BorderPane.alignment="CENTER">
-
+                
             </AnchorPane>
-         </center></BorderPane>
+         </center>
+         <left>
+            <Button fx:id="left" mnemonicParsing="false" rotate="90.0" stylesheets="@style.css" BorderPane.alignment="CENTER">
+               <graphic>
+                  <ImageView fitHeight="27.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true" rotate="90.0">
+                     <image>
+                        <Image url="@icons/forward_96px.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+         </left>
+         <right>
+            <Button fx:id="right" mnemonicParsing="false" rotate="-90.0" stylesheets="@style.css" BorderPane.alignment="CENTER">
+               <graphic>
+                  <ImageView fitHeight="27.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true" rotate="90.0">
+                     <image>
+                        <Image url="@icons/forward_96px.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+         </right>
+         <top>
+            <StackPane BorderPane.alignment="CENTER">
+               <children>
+                  <HBox StackPane.alignment="CENTER">
+                     <children>
+                        <Label fx:id="id" alignment="CENTER" HBox.hgrow="ALWAYS" />
+                        <Label alignment="CENTER" text="  / " HBox.hgrow="ALWAYS" />
+                        <Label fx:id="all" alignment="CENTER" HBox.hgrow="ALWAYS" />
+                     </children>
+                     <padding>
+                        <Insets left="465.0" />
+                     </padding>
+                  </HBox>
+               </children>
+            </StackPane>
+         </top>
+         <bottom>
+            <Slider fx:id="slider" blockIncrement="1.0" majorTickUnit="10.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" style="-fx-background-color: cornflowerblue;" BorderPane.alignment="CENTER" />
+         </bottom></BorderPane>
    </children>
 </AnchorPane>
