@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<AnchorPane prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.amirshamaei.IDV.AboutUs">
+   <children>
+      <ImageView disable="true" fitHeight="600.0" fitWidth="600.0" layoutX="1.0" pickOnBounds="true">
+         <image>
+            <Image url="@About.png" />
+         </image>
+      </ImageView>
+      <TextArea editable="false" layoutX="123.0" layoutY="481.0" prefHeight="56.0" prefWidth="263.0" promptText="github.com/amirshamaei" text="github.com/amirshamaei  github.com/isi-nmr" wrapText="true">
+         <font>
+            <Font size="15.0" />
+         </font></TextArea>
+      <TextArea editable="false" layoutX="123.0" layoutY="419.0" prefHeight="56.0" prefWidth="263.0" text="Developer: Amir M Shamaei&#10;amirshamaei@isibrno.cz ">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </TextArea>
+      <Label layoutX="31.0" layoutY="539.0" prefHeight="41.0" prefWidth="538.0" text="This project has received funding from the European Union's Horizon 2020 research and innovation program under the Marie Sklodowska-Curie grant agreement No 813120" textAlignment="JUSTIFY" wrapText="true" />
+      <Label layoutX="52.0" layoutY="292.0" prefHeight="120.0" prefWidth="498.0" text="A Cross-Platform Open-Source tool for Interrelated MRS(NifTi) Datasets visualization.. You can find the new version on our GitHub.  We also would be happy to hear your feedback. In case you face any problem or bug, send us a message via email. It is under the terms of Appache-2.0 license © Institute of Scientific Instruments of the Czech Academy of Sciences." textAlignment="JUSTIFY" wrapText="true">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

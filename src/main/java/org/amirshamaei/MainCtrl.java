@@ -35,6 +35,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
+import org.amirshamaei.IDV.Controller;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -105,7 +106,8 @@ public class MainCtrl implements Initializable {
     MenuItem copy = new MenuItem("Copy");
     MenuItem rename = new MenuItem("Rename");
     MenuItem paste = new MenuItem("Paste");
-
+    MenuItem openasniftiMRS = new MenuItem("Open As NIfTi-MRS");
+    MenuItem openasmrs = new MenuItem("Open As Spectroscopy file");
     private File folderfile;
     TreeItem<String> mainRoot = new TreeItem<String>("Datasets");
     ObservableList<Map<String, Object>> items =
@@ -122,6 +124,7 @@ public class MainCtrl implements Initializable {
     private int[] canvas_visucoresize;
     private double[] canvas_visucoreextent;
     private FxImageCanvas CopyCanvas;
+    private Bruker bruker;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -163,10 +166,31 @@ public class MainCtrl implements Initializable {
         contxtMenu.getItems().add(rename);
         contxtMenu.getItems().add(copy);
         contxtMenu.getItems().add(paste);
+        contxtMenu.getItems().add(openasniftiMRS);
+//        contxtMenu.getItems().add(openasmrs);
+
+
 
         listView.setContextMenu(contxtMenu);
         listView.setFixedCellSize(60);
         convert2nii.setOnAction(this::convert2nii);
+
+        openasniftiMRS.setOnAction(e -> {
+            try {
+                openIDV();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
+
+        openasmrs.setOnAction(e -> {
+            try {
+                openIDV();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
+
         delete.setOnAction(e -> {
             cd_temp = new File(CurrentUser.getUser().getCD().getAbsoluteFile(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
             cd_temp.delete();
@@ -305,8 +329,8 @@ public class MainCtrl implements Initializable {
                                     temp = new File(CurrentUser.getUser().getCD().getPath(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
                                 } catch (Exception e) {
                                 }
-
-                                plot2dseqOnCanvas(temp);
+                                bruker = getBruker(temp);
+                                plot2dseqOnCanvas(temp, bruker);
 
                                 Platform.runLater(() -> {
                                     canvas.repaint();
@@ -402,10 +426,14 @@ public class MainCtrl implements Initializable {
 //        });
 //
     }
-
-    private void plot2dseqOnCanvas(File temp) {
+    private Bruker getBruker(File temp) {
         Bruker bruker = new Bruker();
         bruker.setPath(temp.toPath());
+        return bruker;
+    }
+    private void plot2dseqOnCanvas(File temp, Bruker bruker) {
+//        Bruker bruker = new Bruker();
+//        bruker.setPath(temp.toPath());
         DataBruker data = bruker.getData();
         canvas_realdata = data.getRealData();
         canvas_visucoresize = bruker.getJcampdx().getVisu_pars().getINDArray("VisuCoreSize").toIntVector();
@@ -949,6 +977,22 @@ public class MainCtrl implements Initializable {
 //                break;
         }
 
+
+    }
+
+    private void openIDV() throws IOException {
+        FXMLLoader root = new FXMLLoader(App.class.getResource("idv" + ".fxml"));
+        Stage primaryStage = new Stage();
+        primaryStage.setTitle("Interrealated Data Viewer");
+        primaryStage.setScene(new Scene(root.load(), 1280, 720));
+        primaryStage.show();
+        Controller ctrler = root.getController();
+        File temp = null;
+        try {
+            temp = new File(CurrentUser.getUser().getCD().getPath(), ((ListContainer) listView.getSelectionModel().getSelectedItem()).getLabel().getText());
+        } catch (Exception e) {
+        }
+        ctrler.openfiledata(temp);
 
     }
 

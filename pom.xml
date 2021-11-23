@@ -21,10 +21,27 @@
             <version>13</version>
         </dependency>
         <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>13</version>
+        </dependency>
+        <dependency>
             <groupId>com.JBruker</groupId>
             <artifactId>JBruker</artifactId>
             <version>1.1</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.JBruker_plat</groupId>-->
+<!--            <artifactId>JBruker</artifactId>-->
+<!--            <version>1.0</version>-->
+<!--        </dependency>-->
+        <!-- https://mvnrepository.com/artifact/com.github.isi-nmr/JBruker -->
+<!--        <dependency>-->
+<!--            <groupId>com.github.isi-nmr</groupId>-->
+<!--            <artifactId>JBruker</artifactId>-->
+<!--            <version>1.0.2</version>-->
+<!--        </dependency>-->
+
         <dependency>
             <groupId>com.bruker2nii</groupId>
             <artifactId>bruker2nii</artifactId>
@@ -45,8 +62,12 @@
             <artifactId>gson</artifactId>
             <version>2.8.6</version>
         </dependency>
-        <!--        mvn install:install-file -Dfile=D:\my-project\bruker2nii_java\out\artifacts\bruker2nii_jar\bruker2nii.jar -DgroupId=com.bruker2nii -DartifactId=bruker2nii - -->
-<!--        Dversion=1.0 -Dpackaging=jar-->
+        <dependency>
+            <groupId>org.openimaj</groupId>
+            <artifactId>JTransforms</artifactId>
+            <version>1.3.10</version>
+        </dependency>
+        <!--        mvn install:install-file -Dfile=D:\my-project\bruker2nii_java\out\artifacts\bruker2nii_jar\bruker2nii.jar -DgroupId=com.bruker2nii -DartifactId=bruker2nii -Dversion=1.0 -Dpackaging=jar-->
 
     </dependencies>
     <build>
@@ -92,6 +113,7 @@
                 <version>2.5.1</version>
                 <configuration>
                     <descriptorRefs>
+<!--                        <descriptorRef>jar-with-dependencies</descriptorRef>-->
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <archive>

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import org.controlsfx.control.RangeSlider?>
+<TabPane fx:id="mainTab" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.amirshamaei.IDV.Controller">
+  <tabs>
+      <Tab fx:id="tab0" text="File">
+          <content>
+              <SplitPane dividerPositions="0.15" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+                  <items>
+<!--                      <AnchorPane>-->
+<!--                          <children>-->
+<!--                              <VBox AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0">-->
+<!--&lt;!&ndash;                              <Button fx:id="opendata" layoutX="22.0" layoutY="27.0" mnemonicParsing="false" style="-fx-background-color: Transparent;" text="Import Data" textFill="#39069e" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0">&ndash;&gt;-->
+<!--&lt;!&ndash;                                  <font>&ndash;&gt;-->
+<!--&lt;!&ndash;                                      <Font size="16.0" />&ndash;&gt;-->
+<!--&lt;!&ndash;                                  </font>&ndash;&gt;-->
+<!--&lt;!&ndash;                              </Button>&ndash;&gt;-->
+<!--&lt;!&ndash;                              <Button fx:id="openfit" layoutX="22.0" layoutY="27.0" mnemonicParsing="false" style="-fx-background-color: Transparent;" text="Import Fit" textFill="#39069e" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0">&ndash;&gt;-->
+<!--&lt;!&ndash;                                  <font>&ndash;&gt;-->
+<!--&lt;!&ndash;                                      <Font size="16.0" />&ndash;&gt;-->
+<!--&lt;!&ndash;                                  </font>&ndash;&gt;-->
+<!--&lt;!&ndash;                              </Button>&ndash;&gt;-->
+<!--                              <Button fx:id="aboutus" layoutX="22.0" layoutY="27.0" mnemonicParsing="false" style="-fx-background-color: Transparent;" text="About Us" textFill="#39069e" AnchorPane.leftAnchor="20.0" AnchorPane.topAnchor="20.0">-->
+<!--                                  <font>-->
+<!--                                      <Font size="16.0" />-->
+<!--                                  </font>-->
+<!--                              </Button>-->
+<!--                              </VBox>-->
+<!--                          </children>-->
+<!--                      </AnchorPane>-->
+<!--                      <ScrollPane prefHeight="-1.0" prefWidth="-1.0">-->
+<!--                          <content>-->
+<!--                              <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">-->
+<!--                                  <children>-->
+<!--                                      &lt;!&ndash;                                    <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="View" textAlignment="CENTER" textFill="$x2" wrapText="false" />&ndash;&gt;-->
+<!--                                  </children>-->
+<!--                              </AnchorPane>-->
+<!--                          </content>-->
+<!--                      </ScrollPane>-->
+                      <AnchorPane>
+                     <children>
+
+                              <TextArea fx:id="json" editable="false" prefHeight="338.0" prefWidth="447.0" promptText="json" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                           <font>
+                              <Font size="14.0" />
+                           </font></TextArea>
+
+                     </children>
+                      </AnchorPane>
+                  </items>
+              </SplitPane>
+          </content>
+      </Tab>
+    <Tab fx:id="tab1" text="3D View">
+      <content>
+        <AnchorPane fx:id="anchorPane1" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <BorderPane fx:id="borderPane1" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <top>
+                        <GridPane alignment="CENTER" hgap="5.0" vgap="5.0" BorderPane.alignment="CENTER">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <BorderPane.margin>
+                              <Insets />
+                           </BorderPane.margin>
+                           <padding>
+                              <Insets bottom="10.0" top="10.0" />
+                           </padding>
+                           <children>
+                              <ToolBar fx:id="toolbar3d" prefHeight="61.0" prefWidth="600.0">
+                                 <items>
+                                    <CheckBox fx:id="datacheck" mnemonicParsing="false" text="Data">
+                                       <padding>
+                                          <Insets right="5.0" />
+                                       </padding>
+                                    </CheckBox>
+                                    <CheckBox fx:id="fitcheck" mnemonicParsing="false" text="Fit">
+                                       <padding>
+                                          <Insets right="5.0" />
+                                       </padding>
+                                    </CheckBox>
+                                    <CheckBox fx:id="rescheck" mnemonicParsing="false" text="Residue" />
+
+                                    <Separator orientation="VERTICAL" prefHeight="26.0" prefWidth="3.0">
+                                       <padding>
+                                          <Insets left="5.0" />
+                                       </padding>
+                                    </Separator>
+                                    <CheckBox fx:id="re" mnemonicParsing="false" text="Re" />
+                                    <CheckBox fx:id="im" mnemonicParsing="false" text="Im" />
+                                    <CheckBox fx:id="mag" mnemonicParsing="false" text="Mag" />
+                                    <CheckBox fx:id="ph" mnemonicParsing="false" text="Ph" />
+                                    <Separator orientation="VERTICAL" prefHeight="5.0" />
+                                    <RadioButton fx:id="rainbow" mnemonicParsing="false" text="Colorful">
+                                       <padding>
+                                          <Insets left="10.0" />
+                                       </padding>
+                                    </RadioButton>
+                                    <Separator orientation="VERTICAL" prefHeight="10.0">
+                                       <padding>
+                                          <Insets left="5.0" />
+                                       </padding>
+                                    </Separator>
+                                    <Label text="Line Width:" />
+                                    <Slider fx:id="lineWidth" max="1.0" min="0.1" prefHeight="14.0" prefWidth="80.0" value="0.5" />
+                                    <Separator orientation="VERTICAL" prefHeight="10.0">
+                                       <padding>
+                                          <Insets left="5.0" />
+                                       </padding>
+                                    </Separator>
+                                    <Label text="Opacity" />
+                                    <Slider fx:id="opacity" max="1.0" min="0.1" prefWidth="80.0" value="0.5" />
+                                    <Separator prefHeight="10.0" prefWidth="10.0" />
+                                    <RadioButton fx:id="yz" mnemonicParsing="false" text="YZ Plane" />
+                                    <RadioButton mnemonicParsing="false" text="XZ Plane" fx:id="xz" />
+                                    <Separator orientation="VERTICAL" prefHeight="10.0" />
+                                     <Separator orientation="VERTICAL" prefHeight="10.0" prefWidth="10.0" />
+                                     <Label text="Horizontal zoom: " />
+                                     <RangeSlider fx:id="rangeSlider" prefHeight="26.0" prefWidth="276.0" />
+                                     <Separator orientation="VERTICAL" prefHeight="10.0" prefWidth="10.0" />
+                                     <Label text="Current Signal: " />
+                                 </items>
+                                 <opaqueInsets>
+                                    <Insets bottom="10.0" top="10.0" />
+                                 </opaqueInsets>
+                                 <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </padding>
+                              </ToolBar>
+                           </children>
+                           <opaqueInsets>
+                              <Insets bottom="5.0" />
+                           </opaqueInsets>
+                        </GridPane>
+                     </top>
+                     <opaqueInsets>
+                        <Insets top="10.0" />
+                     </opaqueInsets>
+                     <left>
+                        <ListView fx:id="signalList" editable="true" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                     </left></BorderPane>
+               </children></AnchorPane>
+      </content>
+    </Tab>
+    <Tab fx:id="tab2" text="Stack View">
+      <content>
+        <AnchorPane fx:id="anchorPane2" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <bottom>
+                        <TextArea fx:id="messeageBar" prefHeight="65.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+                     </bottom>
+                     <top>
+                        <GridPane hgap="10.0" vgap="10.0" BorderPane.alignment="CENTER">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <ToolBar prefHeight="40.0" prefWidth="200.0">
+                                 <items>
+                                     <ChoiceBox fx:id="dataChoicerTab2" prefWidth="150.0">
+                                         <items>
+                                             <FXCollections fx:factory="observableArrayList">
+                                                 <String fx:value="Data" />
+                                                 <String fx:value="Fit" />
+                                                 <String fx:value="Residue" />
+                                             </FXCollections>
+                                         </items>
+                                     </ChoiceBox>
+                                     <Separator orientation="VERTICAL" prefHeight="5.0" />
+                                     <ChoiceBox fx:id="dataTypeTab2" prefWidth="150.0">
+                                         <items>
+                                             <FXCollections fx:factory="observableArrayList">
+                                                 <String fx:value="Re" />
+                                                 <String fx:value="Im" />
+                                                 <String fx:value="Mag" />
+                                                 <String fx:value="Ph" />
+                                             </FXCollections>
+                                         </items>
+                                     </ChoiceBox>
+                                    <ToggleButton fx:id="logScale" mnemonicParsing="false" text="Logarithmic Scale" />
+                                    <ToggleButton fx:id="datatips" mnemonicParsing="false" text="Data Tips" />
+
+                                 </items>
+                                 <opaqueInsets>
+                                    <Insets bottom="10.0" top="10.0" />
+                                 </opaqueInsets>
+                                 <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </padding>
+                              </ToolBar>
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" top="10.0" />
+                           </padding>
+                        </GridPane>
+                     </top>
+                     <center>
+                        <StackPane fx:id="stackview_center_pane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <GridPane fx:id="grid_center" alignment="CENTER" scaleShape="false">
+                                 </GridPane>
+                           </children></StackPane>
+                     </center>
+                  </BorderPane>
+               </children></AnchorPane>
+      </content>
+    </Tab>
+  </tabs>
+</TabPane>
