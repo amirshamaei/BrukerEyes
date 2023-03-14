@@ -3,8 +3,7 @@ BrukerEyes is a cross-platform open-source package for Bruker Datasets managemen
 You can find the new compiled version on [SourceForge](https://sourceforge.net/projects/brukereyes/) or you can clone this repo and build your own.
 We also would be happy to hear your feedback. In case you face any problem or bug, send us a message via email.
 ## DEMO
-[![Watch the video][(https://img.youtube.com/vi/v0oj6daEgq4/0.jpg)](https://youtu.be/v0oj6daEgq4)
-
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/v0oj6daEgq4/0.jpg)](https://www.youtube.com/watch?v=v0oj6daEgq4)
 
 ## This project was supported by:
 This project has received funding from the European Union's Horizon 2020 research and innovation program under the Marie Sklodowska-Curie grant agreement No 813120.
